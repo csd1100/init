@@ -1,7 +1,11 @@
 package core
 
-import "github.com/csd1100/init/internal/utils"
+import (
+	"fmt"
+
+	"github.com/csd1100/init/internal/utils"
+)
 
 func Init(options utils.Options) error {
-	return nil
+	return fmt.Errorf("not yet implemented")
 }

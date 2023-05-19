@@ -12,10 +12,10 @@ func main() {
 	args := os.Args[1:]
 	options, err := utils.ParseArgs(args)
 	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
+		panic(fmt.Errorf("error: %s\n", err.Error()))
 	}
 	err = core.Init(*options)
 	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
+		panic(fmt.Errorf("error: %s\n", err.Error()))
 	}
 }
