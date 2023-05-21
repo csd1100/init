@@ -55,6 +55,47 @@ func TestGitClone(t *testing.T) {
 
 }
 
+func TestGitCloneSingleBranch(t *testing.T) {
+	testcases := []struct {
+		name           string
+		repo           string
+		branch         string
+		expectedArgs   []string
+		exepectedError error
+	}{
+		{
+			name:   "GitCloneSingleBranch",
+			repo:   "https://github.com/test/test",
+			branch: "test-1",
+			expectedArgs: []string{
+				"clone", "--single-branch", "-b", "test-1",
+				"--depth", "1", "https://github.com/test/test",
+			},
+			exepectedError: nil,
+		},
+	}
+
+	for _, tc := range testcases {
+
+		t.Run(tc.name, func(t *testing.T) {
+
+			mcli := mockCLI{}
+			err := cli.GitCloneSingleBranch(&mcli, tc.repo, tc.branch)
+			if err != nil {
+				if errors.Is(err, tc.exepectedError) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepectedError, err)
+				}
+			} else {
+				if !reflect.DeepEqual(mcli.actualArgs, tc.expectedArgs) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mcli.actualArgs)
+				}
+			}
+
+		})
+
+	}
+
+}
 func TestGitInit(t *testing.T) {
 	testcases := []struct {
 		name           string
