@@ -3,6 +3,7 @@ package utils_test
 import (
 	"errors"
 	"flag"
+	"os"
 	"reflect"
 	"testing"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/csd1100/init/internal/utils"
 )
 
-// TODO: fix test arguments passed to the ParseArgs
 func TestParse(t *testing.T) {
 	testTemplateFiles := []templates.TemplateFile{
 		{
@@ -134,6 +134,8 @@ func TestParse(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			oldArgs := os.Args
+			os.Args = oldArgs[:1]
 
 			if tc.init != nil {
 				tc.init()
@@ -162,6 +164,8 @@ func TestParse(t *testing.T) {
 					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expected_error, err)
 				}
 			}
+
+			os.Args = oldArgs
 		})
 	}
 }

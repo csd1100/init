@@ -20,7 +20,7 @@ func TestParseTemplate(t *testing.T) {
 		expected_value string
 	}{
 		{
-			name: "ParseTemplates happy path",
+			name: "ParseTemplates generates parsed file",
 			templ: templates.Template{
 				Name: "test",
 				TemplateFiles: []templates.TemplateFile{
