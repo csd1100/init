@@ -12,6 +12,18 @@ import (
 
 // TODO: fix test arguments passed to the ParseArgs
 func TestParse(t *testing.T) {
+	testTemplateFiles := []templates.TemplateFile{
+		{
+			Src: "./templates/go.mod.tmpl",
+			Dst: "./go.mod",
+		},
+		{
+			Src: "./templates/main.go.tmpl",
+			Dst: "./main.go",
+		},
+	}
+	testTemplateData := make(map[string]string)
+	testTemplateData["projectName"] = "test"
 	cases := []struct {
 		name           string
 		init           func()
@@ -65,8 +77,12 @@ func TestParse(t *testing.T) {
 				utils.FSet.Set("t", "go")
 			},
 			expected_value: &utils.Options{
-				Name:     "test",
-				Template: templates.Template{Name: "go", TemplateFiles: []string{}},
+				Name: "test",
+				Template: templates.Template{
+					Name:          "go",
+					TemplateFiles: testTemplateFiles,
+					TemplateData:  testTemplateData,
+				},
 			},
 			expected_error: nil,
 		},
@@ -80,11 +96,15 @@ func TestParse(t *testing.T) {
 				utils.FSet.Set("p", "/tmp/")
 			},
 			expected_value: &utils.Options{
-				Name:     "test",
-				Template: templates.Template{Name: "go", TemplateFiles: []string{}},
-				NoGit:    true,
-				NoSync:   true,
-				Path:     "/tmp/",
+				Name: "test",
+				Template: templates.Template{
+					Name:          "go",
+					TemplateFiles: testTemplateFiles,
+					TemplateData:  testTemplateData,
+				},
+				NoGit:  true,
+				NoSync: true,
+				Path:   "/tmp/",
 			},
 			expected_error: nil,
 		},
@@ -98,11 +118,15 @@ func TestParse(t *testing.T) {
 				utils.FSet.Set("path", "/tmp/")
 			},
 			expected_value: &utils.Options{
-				Name:     "test",
-				Template: templates.Template{Name: "go", TemplateFiles: []string{}},
-				NoGit:    true,
-				NoSync:   true,
-				Path:     "/tmp/",
+				Name: "test",
+				Template: templates.Template{
+					Name:          "go",
+					TemplateFiles: testTemplateFiles,
+					TemplateData:  testTemplateData,
+				},
+				NoGit:  true,
+				NoSync: true,
+				Path:   "/tmp/",
 			},
 			expected_error: nil,
 		},

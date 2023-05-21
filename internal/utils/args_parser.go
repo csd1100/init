@@ -75,7 +75,7 @@ func ParseArgs() (*Options, error) {
 		return nil, err
 	}
 
-	template, err := templates.GetTemplate(templateName)
+	template, err := templates.GetTemplate(templateName, name)
 	if err != nil {
 		return nil, err
 	}
