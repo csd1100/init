@@ -4,19 +4,20 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/csd1100/init/internal/templates"
 	"github.com/csd1100/init/internal/utils"
 )
 
-// TODO: fix test arguments passed to the ParseArgs
 func TestParseTemplate(t *testing.T) {
 	cases := []struct {
 		name           string
 		templ          templates.Template
-		expected_value []byte
+		filename       string
 		expected_error error
+		expected_value string
 	}{
 		{
 			name: "ParseTemplates happy path",
@@ -32,6 +33,28 @@ func TestParseTemplate(t *testing.T) {
 					"value": "value",
 				},
 			},
+			expected_value: fmt.Sprintln(`{
+    "key": "value"
+}`),
+		},
+		{
+			name: "ParseTemplates replaces existing file",
+			templ: templates.Template{
+				Name: "test",
+				TemplateFiles: []templates.TemplateFile{
+					{
+						Src: "./testdata/test_data.json.tmpl",
+					},
+				},
+				TemplateData: map[string]string{
+					"key":   "new_key",
+					"value": "new_value",
+				},
+			},
+			filename: "exisiting_file.json",
+			expected_value: fmt.Sprintln(`{
+    "new_key": "new_value"
+}`),
 		},
 	}
 
@@ -47,25 +70,13 @@ func TestParseTemplate(t *testing.T) {
 					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expected_error, err)
 				}
 			} else {
-				cwd, readErr := os.Getwd()
-				if readErr != nil {
-					t.Errorf("unable to get working directory")
-				}
-				fmt.Println(cwd)
-
-				expectedFilePath := fmt.Sprint("./testdata/expected_test_data.json")
-				expectedFile, readErr := os.ReadFile(expectedFilePath)
-				if readErr != nil {
-					t.Errorf("unable to read expected file")
-				}
-
 				actualFile, readErr := os.ReadFile(tc.templ.TemplateFiles[0].Dst)
 				if readErr != nil {
 					t.Errorf("unable to read actual file")
 				}
 
-				if string(actualFile) != string(expectedFile) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, string(expectedFile), string(actualFile))
+				if strings.Compare(string(actualFile), tc.expected_value) != 0 {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expected_value, string(actualFile))
 				}
 
 				if err != nil {
