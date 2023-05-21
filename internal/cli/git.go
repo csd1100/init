@@ -1,20 +1,14 @@
 package cli
 
-type gitInterface interface {
-	Clone(repo string) error
-	Init() error
+func GitClone(exe Executable, repo string, args []string) error {
+	if args == nil {
+		args = []string{}
+	}
+	cloneArgs := append([]string{"clone"}, args...)
+	cloneArgs = append(cloneArgs, repo)
+	return exe.Exec(cloneArgs)
 }
 
-type git struct {
-	cli Executable
+func GitInit(exe Executable) error {
+	return exe.Exec([]string{"init"})
 }
-
-func (gitCLI git) Clone(repo string) error {
-	return gitCLI.cli.Exec([]string{"clone", repo})
-}
-
-func (gitCLI git) Init() error {
-	return gitCLI.cli.Exec([]string{"init"})
-}
-
-var Git = git{NewCLI("git")}

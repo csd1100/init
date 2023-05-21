@@ -2,77 +2,64 @@ package cli_test
 
 import (
 	"fmt"
-	"os"
+	"reflect"
 	"testing"
 
 	"github.com/csd1100/init/internal/cli"
 	"github.com/csd1100/init/internal/utils"
 )
 
-func TestNewCli(t *testing.T) {
-	thisPath, _ := os.Executable()
-	testcases := []struct {
-		name          string
-		command       string
-		exepetedValue cli.CLI
-	}{
-		{
-			name:    "NewCLI has IsInstalled true if program is in PATH",
-			command: thisPath,
-			exepetedValue: cli.CLI{
-				Command:     thisPath,
-				Path:        thisPath,
-				IsInstalled: true,
-			},
-		},
-		{
-			name:    "NewCLI has IsInstalled false if program is NOT in PATH",
-			command: "non_existent_executable",
-			exepetedValue: cli.CLI{
-				Command:     "non_existent_executable",
-				Path:        "",
-				IsInstalled: false,
-			},
-		},
-	}
+type mockCLI struct {
+	actualArgs  []string
+	actualError error
+}
 
-	for _, tc := range testcases {
-		t.Run(tc.name, func(t *testing.T) {
-			actual := cli.NewCLI(tc.command)
-			if actual != tc.exepetedValue {
-				t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.exepetedValue, actual)
-			}
-		})
-	}
+func (mc *mockCLI) Exec(args []string) error {
+	mc.actualArgs = args
+	return nil
 }
 
 func TestExec(t *testing.T) {
-	thisPath, _ := os.Executable()
 	testcases := []struct {
-		name          string
-		command       string
-		exepetedError error
+		name           string
+		cli            cli.Executable
+		expectedArgs   []string
+		exepectedError error
 	}{
 		{
-			name:          "cli.Exec does not return error if executable is present in PATH",
-			command:       thisPath,
-			exepetedError: nil,
+			name:           "cli.Exec receives correct args",
+			cli:            nil,
+			expectedArgs:   []string{"--test"},
+			exepectedError: nil,
 		},
 		{
-			name:          "cli.Exec does return error if executable is not present in PATH",
-			command:       "non_existent_executable",
-			exepetedError: fmt.Errorf("non_existent_executable is not installed"),
+			name:           "cli.Exec returns error if not in path",
+			cli:            cli.CLI{Command: "not_installed_executable"},
+			expectedArgs:   []string{"--test"},
+			exepectedError: fmt.Errorf("not_installed_executable is not installed"),
 		},
 	}
 
 	for _, tc := range testcases {
+
+		var testCLI cli.Executable
+		if tc.cli == nil {
+			testCLI = &mockCLI{}
+		} else {
+			testCLI = tc.cli
+		}
+
 		t.Run(tc.name, func(t *testing.T) {
-			executable := cli.NewCLI(tc.command)
-			actualError := executable.Exec([]string{"arg1"})
-			if actualError != nil {
-				if actualError.Error() != tc.exepetedError.Error() {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepetedError, actualError)
+			err := testCLI.Exec(tc.expectedArgs)
+			if err != nil {
+				if err.Error() != tc.exepectedError.Error() {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepectedError, err)
 				}
+			} else {
+				if !reflect.DeepEqual(testCLI.(*mockCLI).actualArgs, tc.expectedArgs) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, testCLI.(*mockCLI).actualArgs)
+				}
+
 			}
 		})
 	}

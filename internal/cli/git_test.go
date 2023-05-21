@@ -1,68 +1,91 @@
-package cli
+package cli_test
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
+	"github.com/csd1100/init/internal/cli"
 	"github.com/csd1100/init/internal/utils"
 )
 
 func TestGitClone(t *testing.T) {
 	testcases := []struct {
-		name          string
-		expectedArgs  []string
-		expectedError error
+		name           string
+		repo           string
+		actualArgs     []string
+		expectedArgs   []string
+		exepectedError error
 	}{
 		{
-			name:          "Git.Clone passes proper args to Git.Exec",
-			expectedArgs:  []string{"clone", "test"},
-			expectedError: nil,
+			name:           "GitClone without args",
+			repo:           "test",
+			actualArgs:     []string{},
+			expectedArgs:   []string{"clone", "test"},
+			exepectedError: nil,
+		},
+		{
+			name:           "GitClone with args",
+			repo:           "test",
+			actualArgs:     []string{"xxxx"},
+			expectedArgs:   []string{"clone", "xxxx", "test"},
+			exepectedError: nil,
 		},
 	}
 
 	for _, tc := range testcases {
+
 		t.Run(tc.name, func(t *testing.T) {
-			mockGit := git{mockCLI{}}
-			err := mockGit.Clone("test")
+
+			mcli := mockCLI{}
+			err := cli.GitClone(&mcli, tc.repo, tc.actualArgs)
 			if err != nil {
-				if tc.expectedError != mockGit.cli.(mockCLI).actualError {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expectedError, mockGit.cli.(mockCLI).actualError)
+				if errors.Is(err, tc.exepectedError) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepectedError, err)
 				}
 			} else {
-				if reflect.DeepEqual(mockGit.cli.(mockCLI).actualArgs, tc.expectedArgs) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mockGit.cli.(mockCLI).actualArgs)
+				if !reflect.DeepEqual(mcli.actualArgs, tc.expectedArgs) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mcli.actualArgs)
 				}
 			}
+
 		})
+
 	}
+
 }
 
 func TestGitInit(t *testing.T) {
 	testcases := []struct {
-		name          string
-		expectedArgs  []string
-		expectedError error
+		name           string
+		expectedArgs   []string
+		exepectedError error
 	}{
 		{
-			name:          "Git.Init passes proper args to Git.Exec",
-			expectedArgs:  []string{"init"},
-			expectedError: nil,
+			name:           "GitInit passes correct args",
+			expectedArgs:   []string{"init"},
+			exepectedError: nil,
 		},
 	}
 
 	for _, tc := range testcases {
+
 		t.Run(tc.name, func(t *testing.T) {
-			mockGit := git{mockCLI{}}
-			err := mockGit.Init()
+
+			mcli := mockCLI{}
+			err := cli.GitInit(&mcli)
 			if err != nil {
-				if tc.expectedError.Error() != mockGit.cli.(mockCLI).actualError.Error() {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expectedError.Error(), err.Error())
+				if errors.Is(err, tc.exepectedError) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepectedError, err)
 				}
 			} else {
-				if reflect.DeepEqual(mockGit.cli.(mockCLI).actualArgs, tc.expectedArgs) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mockGit.cli.(mockCLI).actualArgs)
+				if !reflect.DeepEqual(mcli.actualArgs, tc.expectedArgs) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mcli.actualArgs)
 				}
 			}
+
 		})
+
 	}
+
 }

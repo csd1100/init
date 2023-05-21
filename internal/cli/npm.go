@@ -1,15 +1,5 @@
 package cli
 
-type npmInterface interface {
-	Install() error
+func NpmInstall(exe Executable) error {
+	return exe.Exec([]string{"install"})
 }
-
-type npm struct {
-	cli Executable
-}
-
-func (npmCLI npm) Install() error {
-	return npmCLI.cli.Exec([]string{"install"})
-}
-
-var Npm = npm{NewCLI("npm")}
