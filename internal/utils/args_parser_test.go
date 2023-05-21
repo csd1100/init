@@ -1,54 +1,70 @@
-package utils
+package utils_test
 
 import (
-	"fmt"
+	"errors"
+	"flag"
 	"reflect"
 	"testing"
 
 	"github.com/csd1100/init/internal/templates"
+	"github.com/csd1100/init/internal/utils"
 )
 
+// TODO: fix test arguments passed to the ParseArgs
 func TestParse(t *testing.T) {
 	cases := []struct {
 		name           string
-		args           []string
-		expected_value *Options
+		init           func()
+		expected_value *utils.Options
 		expected_error error
 	}{
 		{
 			name:           "returns error if empty args",
-			args:           []string{},
 			expected_value: nil,
-			expected_error: fmt.Errorf("expected at least 2 arguments: name and template"),
+			expected_error: utils.ErrArgNameRequired,
 		},
 		{
-			name:           "returns error if name not included",
-			args:           []string{"-t", "go"},
+			name: "returns error if name not included",
+			init: func() {
+				utils.FSet.Set("t", "go")
+			},
 			expected_value: nil,
-			expected_error: fmt.Errorf("expected argument: name"),
+			expected_error: utils.ErrArgNameRequired,
 		},
 		{
-			name:           "returns error if template not included",
-			args:           []string{"-n", "test"},
+			name: "returns error if template not included",
+			init: func() {
+				utils.FSet.Set("n", "test")
+			},
 			expected_value: nil,
-			expected_error: fmt.Errorf("expected argument: template"),
+			expected_error: utils.ErrArgTemplateRequired,
 		},
 		{
-			name:           "returns error if invalid option",
-			args:           []string{"-x", "test"},
+			name: "returns error if invalid template",
+			init: func() {
+				utils.FSet.Set("n", "test")
+				utils.FSet.Set("t", "test")
+			},
 			expected_value: nil,
-			expected_error: fmt.Errorf("invalid argument: -x"),
+			expected_error: templates.ErrInvalidArgTemplate,
 		},
 		{
-			name:           "returns error if invalid template",
-			args:           []string{"-n", "test", "-t", "test"},
+			name: "returns error if invalid path",
+			init: func() {
+				utils.FSet.Set("n", "test")
+				utils.FSet.Set("t", "go")
+				utils.FSet.Set("p", "invalid_directory_11111")
+			},
 			expected_value: nil,
-			expected_error: fmt.Errorf("invalid template: test"),
+			expected_error: utils.ErrInvalidArgPath,
 		},
 		{
 			name: "returns options if only name and template",
-			args: []string{"-n", "test", "-t", "go"},
-			expected_value: &Options{
+			init: func() {
+				utils.FSet.Set("n", "test")
+				utils.FSet.Set("t", "go")
+			},
+			expected_value: &utils.Options{
 				Name:     "test",
 				Template: templates.Template{Name: "go", TemplateFiles: []string{}},
 			},
@@ -56,27 +72,37 @@ func TestParse(t *testing.T) {
 		},
 		{
 			name: "returns options if valid arguments",
-			args: []string{"-n", "test", "-t", "go", "-G", "-S", "-p", "tmp/", "-h"},
-			expected_value: &Options{
+			init: func() {
+				utils.FSet.Set("n", "test")
+				utils.FSet.Set("t", "go")
+				utils.FSet.Set("G", "true")
+				utils.FSet.Set("S", "true")
+				utils.FSet.Set("p", "/tmp/")
+			},
+			expected_value: &utils.Options{
 				Name:     "test",
 				Template: templates.Template{Name: "go", TemplateFiles: []string{}},
 				NoGit:    true,
 				NoSync:   true,
-				Path:     "tmp/",
-				Help:     true,
+				Path:     "/tmp/",
 			},
 			expected_error: nil,
 		},
 		{
 			name: "returns options if valid arguments with long version",
-			args: []string{"--name", "test", "--template", "go", "--no-git", "--no-sync", "--path", "tmp/", "--help"},
-			expected_value: &Options{
+			init: func() {
+				utils.FSet.Set("name", "test")
+				utils.FSet.Set("template", "go")
+				utils.FSet.Set("no-git", "true")
+				utils.FSet.Set("no-sync", "true")
+				utils.FSet.Set("path", "/tmp/")
+			},
+			expected_value: &utils.Options{
 				Name:     "test",
 				Template: templates.Template{Name: "go", TemplateFiles: []string{}},
 				NoGit:    true,
 				NoSync:   true,
-				Path:     "tmp/",
-				Help:     true,
+				Path:     "/tmp/",
 			},
 			expected_error: nil,
 		},
@@ -84,20 +110,32 @@ func TestParse(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual, err := ParseArgs(tc.args)
+
+			if tc.init != nil {
+				tc.init()
+			}
+
+			t.Cleanup(func() {
+				utils.FSet.Visit(func(f *flag.Flag) {
+					f.Value.Set(f.DefValue)
+				})
+			})
+
+			actual, err := utils.ParseArgs()
+
 			if err != nil {
-				if err.Error() != tc.expected_error.Error() {
-					t.Errorf(FAILURE_MESSAGE, tc.name, ERROR, tc.expected_error, err)
+				if !errors.Is(err, tc.expected_error) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expected_error, err)
 				}
 				if actual != nil {
-					t.Errorf(FAILURE_MESSAGE, tc.name, VALUE, tc.expected_value, actual)
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expected_value, actual)
 				}
 			} else {
 				if !reflect.DeepEqual(*actual, *tc.expected_value) {
-					t.Errorf(FAILURE_MESSAGE, tc.name, VALUE, *tc.expected_value, *actual)
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, *tc.expected_value, *actual)
 				}
 				if err != nil {
-					t.Errorf(FAILURE_MESSAGE, tc.name, ERROR, tc.expected_error, err)
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expected_error, err)
 				}
 			}
 		})

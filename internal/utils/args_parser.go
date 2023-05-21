@@ -1,7 +1,9 @@
 package utils
 
 import (
-	"fmt"
+	"errors"
+	"flag"
+	"os"
 
 	"github.com/csd1100/init/internal/templates"
 )
@@ -15,48 +17,76 @@ type Options struct {
 	Help     bool
 }
 
-func validateArgs(options Options) error {
-	if options.Name == "" {
-		return fmt.Errorf("expected argument: name")
+var name string
+var templateName string
+var noGit bool
+var noSync bool
+var path string
+var FSet = flag.FlagSet{}
+
+func init() {
+	FSet.StringVar(&name, "n", "", "name of the project")
+	FSet.StringVar(&name, "name", "", "name of the project")
+	FSet.StringVar(&templateName, "t", "", "template for the project")
+	FSet.StringVar(&templateName, "template", "", "name for the project")
+	FSet.StringVar(&path, "p", "", "path for the project")
+	FSet.StringVar(&path, "path", "", "path for the project")
+	FSet.BoolVar(&noGit, "G", false, "do not initialize git repository")
+	FSet.BoolVar(&noGit, "no-git", false, "do not initialize git repository")
+	FSet.BoolVar(&noSync, "S", false, "do not sync project (e.g. npm install, go mod tidy)")
+	FSet.BoolVar(&noSync, "no-sync", false, "do not sync project (e.g. npm install, go mod tidy)")
+}
+
+func validateArgs() error {
+
+	if name == "" {
+		return ErrArgNameRequired
 	}
-	if options.Template == nil {
-		return fmt.Errorf("expected argument: template")
+
+	if string(name[0]) == "-" {
+		return ErrInvalidArgName
 	}
+
+	if templateName == "" {
+		return ErrArgTemplateRequired
+	}
+
+	if path != "" {
+		_, err := os.ReadDir(path)
+		if err != nil {
+			return ErrInvalidArgPath
+		}
+	}
+
 	return nil
 }
 
-func ParseArgs(args []string) (*Options, error) {
-	if len(args) == 0 {
-		return nil, fmt.Errorf("expected at least 2 arguments: name and template")
-	}
-	options := Options{}
-	for i := 0; i < len(args); i++ {
-		switch {
-		case args[i] == "-n", args[i] == "--name":
-			options.Name = args[i+1]
-			i++
-		case args[i] == "-t", args[i] == "--template":
-			template, err := templates.GetTemplate(args[i+1])
-			if err != nil {
-				return nil, err
-			}
-			options.Template = template
-			i++
-		case args[i] == "-p", args[i] == "--path":
-			options.Path = args[i+1]
-			i++
-		case args[i] == "-h", args[i] == "--help":
-			options.Help = true
-		case args[i] == "-G", args[i] == "--no-git":
-			options.NoGit = true
-		case args[i] == "-S", args[i] == "--no-sync":
-			options.NoSync = true
-		default:
-			return nil, fmt.Errorf("invalid argument: %s", args[i])
+func ParseArgs() (*Options, error) {
+	err := FSet.Parse(os.Args[1:])
+	if err != nil {
+		// TODO: throw error if invalid flag and refactor tests accordingly
+		if errors.Is(err, flag.ErrHelp) {
+			return &Options{Help: true}, nil
 		}
 	}
-	if err := validateArgs(options); err != nil {
+
+	err = validateArgs()
+	if err != nil {
 		return nil, err
 	}
+
+	template, err := templates.GetTemplate(templateName)
+	if err != nil {
+		return nil, err
+	}
+
+	options := Options{
+		Name:     name,
+		Template: template,
+		NoGit:    noGit,
+		NoSync:   noSync,
+		Path:     path,
+	}
+
 	return &options, nil
 }

@@ -2,18 +2,21 @@ package main
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/csd1100/init/internal/core"
 	"github.com/csd1100/init/internal/utils"
 )
 
 func main() {
-	args := os.Args[1:]
-	options, err := utils.ParseArgs(args)
+	options, err := utils.ParseArgs()
 	if err != nil {
 		panic(fmt.Errorf("error: %s\n", err.Error()))
 	}
+
+	if options.Help {
+		return
+	}
+
 	err = core.Init(*options)
 	if err != nil {
 		panic(fmt.Errorf("error: %s\n", err.Error()))

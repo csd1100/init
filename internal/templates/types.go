@@ -1,7 +1,5 @@
 package templates
 
-import "fmt"
-
 type Project interface {
 	Init() error
 	ParseTemplates() error
@@ -27,7 +25,7 @@ func GetTemplate(name string) (Project, error) {
 	case "js":
 		return JS, nil
 	default:
-		return nil, fmt.Errorf("invalid template: %s", name)
+		return nil, ErrInvalidArgTemplate
 	}
 }
 
