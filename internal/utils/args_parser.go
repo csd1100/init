@@ -8,7 +8,7 @@ import (
 
 type Options struct {
 	Name     string
-	Template templates.Template
+	Template templates.Project
 	NoGit    bool
 	NoSync   bool
 	Path     string
@@ -19,7 +19,7 @@ func validateArgs(options Options) error {
 	if options.Name == "" {
 		return fmt.Errorf("expected argument: name")
 	}
-	if options.Template.Name == "" {
+	if options.Template == nil {
 		return fmt.Errorf("expected argument: template")
 	}
 	return nil
@@ -36,11 +36,11 @@ func ParseArgs(args []string) (*Options, error) {
 			options.Name = args[i+1]
 			i++
 		case args[i] == "-t", args[i] == "--template":
-			template, err := templates.NewTemplate(args[i+1])
+			template, err := templates.GetTemplate(args[i+1])
 			if err != nil {
 				return nil, err
 			}
-			options.Template = *template
+			options.Template = template
 			i++
 		case args[i] == "-p", args[i] == "--path":
 			options.Path = args[i+1]

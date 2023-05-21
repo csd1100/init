@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/csd1100/init/internal/templates"
@@ -39,26 +40,26 @@ func TestParse(t *testing.T) {
 			expected_error: fmt.Errorf("invalid argument: -x"),
 		},
 		{
-			name: "returns options if only name and template",
-			args: []string{"-n", "test", "-t", "go"},
-			expected_value: &Options{
-				Name:     "test",
-				Template: templates.Template{Name: "go"},
-			},
-			expected_error: nil,
-		},
-		{
 			name:           "returns error if invalid template",
 			args:           []string{"-n", "test", "-t", "test"},
 			expected_value: nil,
 			expected_error: fmt.Errorf("invalid template: test"),
 		},
 		{
+			name: "returns options if only name and template",
+			args: []string{"-n", "test", "-t", "go"},
+			expected_value: &Options{
+				Name:     "test",
+				Template: templates.Template{Name: "go", TemplateFiles: []string{}},
+			},
+			expected_error: nil,
+		},
+		{
 			name: "returns options if valid arguments",
 			args: []string{"-n", "test", "-t", "go", "-G", "-S", "-p", "tmp/", "-h"},
 			expected_value: &Options{
 				Name:     "test",
-				Template: templates.Template{Name: "go"},
+				Template: templates.Template{Name: "go", TemplateFiles: []string{}},
 				NoGit:    true,
 				NoSync:   true,
 				Path:     "tmp/",
@@ -71,7 +72,7 @@ func TestParse(t *testing.T) {
 			args: []string{"--name", "test", "--template", "go", "--no-git", "--no-sync", "--path", "tmp/", "--help"},
 			expected_value: &Options{
 				Name:     "test",
-				Template: templates.Template{Name: "go"},
+				Template: templates.Template{Name: "go", TemplateFiles: []string{}},
 				NoGit:    true,
 				NoSync:   true,
 				Path:     "tmp/",
@@ -92,7 +93,7 @@ func TestParse(t *testing.T) {
 					t.Errorf(FAILURE_MESSAGE, tc.name, VALUE, tc.expected_value, actual)
 				}
 			} else {
-				if *actual != *tc.expected_value {
+				if !reflect.DeepEqual(*actual, *tc.expected_value) {
 					t.Errorf(FAILURE_MESSAGE, tc.name, VALUE, *tc.expected_value, *actual)
 				}
 				if err != nil {

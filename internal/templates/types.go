@@ -1,32 +1,39 @@
 package templates
 
-import (
-	"fmt"
-)
+import "fmt"
 
-func stringIsInArray(arr []string, toFind string) bool {
-	for _, value := range arr {
-		if value == toFind {
-			return true
-		}
-	}
-	return false
+type Project interface {
+	Init() error
+	ParseTemplates() error
 }
 
 type Template struct {
-	Name string
+	Name          string
+	TemplateFiles []string
 }
 
-var supportedTemplates = []string{
-	"go",
-	"js",
+func (template Template) Init() error {
+	return nil
 }
 
-func NewTemplate(name string) (*Template, error) {
-	if stringIsInArray(supportedTemplates, name) {
-		return &Template{
-			Name: name,
-		}, nil
+func (template Template) ParseTemplates() error {
+	return nil
+}
+
+func GetTemplate(name string) (Project, error) {
+	switch name {
+	case "go":
+		return Go, nil
+	case "js":
+		return JS, nil
+	default:
+		return nil, fmt.Errorf("invalid template: %s", name)
 	}
-	return nil, fmt.Errorf("invalid template: %s", name)
+}
+
+func newTemplate(name string, templateFiles []string) Template {
+	return Template{
+		Name:          name,
+		TemplateFiles: templateFiles,
+	}
 }
