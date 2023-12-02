@@ -19,5 +19,14 @@ func (cli CLI) Exec(args []string) error {
 		return fmt.Errorf("%s is not installed", cli.Command)
 	}
 	fmt.Println(path)
+	cmd := exec.Command(path, args...)
+	fmt.Println(cmd)
+
+	stdoutStderr, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s\n", stdoutStderr)
+
 	return nil
 }

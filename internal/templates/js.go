@@ -11,12 +11,8 @@ func (jsTemp jsTemplate) Init() error {
 func generateJSTemplate(projectName string) Project {
 	var jSTemplateFiles = []TemplateFile{
 		{
-			Src: "./templates/go.mod.tmpl",
-			Dst: "./go.mod",
-		},
-		{
-			Src: "./templates/main.go.tmpl",
-			Dst: "./main.go",
+			Src: "./templates/package.json.tmpl",
+			Dst: "./package.json",
 		},
 	}
 
