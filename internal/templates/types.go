@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"log"
 	"os"
 	"text/template"
 )
@@ -15,15 +16,6 @@ type TemplateFile struct {
 	Dst string
 }
 
-type TemplateParser struct {
-	accumulator []byte
-}
-
-func (tp *TemplateParser) Write(p []byte) (int, error) {
-	tp.accumulator = append(tp.accumulator, p...)
-	return len(p), nil
-}
-
 type Template struct {
 	Name          string
 	TemplateFiles []TemplateFile
@@ -34,21 +26,6 @@ func (template Template) Init() error {
 	return nil
 }
 
-func writeToFile(file string, data []byte) error {
-	dstFile, err := os.OpenFile(file, os.O_CREATE|os.O_WRONLY, 0644)
-	defer dstFile.Close()
-	if err != nil {
-		return err
-	}
-
-	_, err = dstFile.Write(data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (tmpl Template) ParseTemplates() error {
 	for _, templateFile := range tmpl.TemplateFiles {
 		parsedTemplate, err := template.ParseFiles(templateFile.Src)
@@ -56,13 +33,14 @@ func (tmpl Template) ParseTemplates() error {
 			return err
 		}
 
-		parser := &TemplateParser{}
-		parsedTemplate.Execute(parser, tmpl.TemplateData)
-
-		err = writeToFile(templateFile.Dst, parser.accumulator)
+		file, err := os.Create(templateFile.Dst)
 		if err != nil {
 			return err
 		}
+
+		parsedTemplate.Execute(file, tmpl.TemplateData)
+		parsedTemplate.Execute(log.Writer(), tmpl.TemplateData)
+
 	}
 
 	return nil
