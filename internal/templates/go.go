@@ -1,12 +1,6 @@
 package templates
 
-type goTemplate struct {
-	Template
-}
-
-func (goTemp goTemplate) Init() error {
-	return nil
-}
+import "github.com/csd1100/init/internal/cli"
 
 func generateGoTemplate(projectName string) Project {
 
@@ -28,5 +22,6 @@ func generateGoTemplate(projectName string) Project {
 		Name:          "go",
 		TemplateFiles: goTemplateFiles,
 		TemplateData:  templateData,
+		BuildTool:     cli.Go,
 	}
 }

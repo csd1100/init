@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/csd1100/init/internal/cli"
 	"github.com/csd1100/init/internal/templates"
 	"github.com/csd1100/init/internal/utils"
 )
@@ -82,6 +83,7 @@ func TestParse(t *testing.T) {
 					Name:          "go",
 					TemplateFiles: testTemplateFiles,
 					TemplateData:  testTemplateData,
+					BuildTool:     cli.Go,
 				},
 			},
 			expected_error: nil,
@@ -101,6 +103,7 @@ func TestParse(t *testing.T) {
 					Name:          "go",
 					TemplateFiles: testTemplateFiles,
 					TemplateData:  testTemplateData,
+					BuildTool:     cli.Go,
 				},
 				NoGit:  true,
 				NoSync: true,
@@ -123,6 +126,7 @@ func TestParse(t *testing.T) {
 					Name:          "go",
 					TemplateFiles: testTemplateFiles,
 					TemplateData:  testTemplateData,
+					BuildTool:     cli.Go,
 				},
 				NoGit:  true,
 				NoSync: true,

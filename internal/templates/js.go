@@ -1,12 +1,8 @@
 package templates
 
-type jsTemplate struct {
-	Template
-}
-
-func (jsTemp jsTemplate) Init() error {
-	return nil
-}
+import (
+	"github.com/csd1100/init/internal/cli"
+)
 
 func generateJSTemplate(projectName string) Project {
 	var jSTemplateFiles = []TemplateFile{
@@ -23,5 +19,6 @@ func generateJSTemplate(projectName string) Project {
 		Name:          "js",
 		TemplateFiles: jSTemplateFiles,
 		TemplateData:  templateData,
+		BuildTool:     cli.Npm,
 	}
 }

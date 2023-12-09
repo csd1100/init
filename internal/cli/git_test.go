@@ -9,6 +9,17 @@ import (
 	"github.com/csd1100/init/internal/utils"
 )
 
+type mockGit struct {
+	cli.GitCLI
+	actualArgs  []string
+	actualError error
+}
+
+func (mg *mockGit) Exec(subcommand string, args []string) ([]byte, error) {
+	mg.actualArgs = args
+	return nil, nil
+}
+
 func TestGitClone(t *testing.T) {
 	testcases := []struct {
 		name           string
@@ -37,15 +48,15 @@ func TestGitClone(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 
-			mcli := mockCLI{}
-			err := cli.GitClone(&mcli, tc.repo, tc.actualArgs)
+			mGit := mockGit{}
+			err := mGit.Clone(tc.repo, tc.actualArgs)
 			if err != nil {
 				if errors.Is(err, tc.exepectedError) {
 					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepectedError, err)
 				}
 			} else {
-				if !reflect.DeepEqual(mcli.actualArgs, tc.expectedArgs) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mcli.actualArgs)
+				if !reflect.DeepEqual(mGit.actualArgs, tc.expectedArgs) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mGit.actualArgs)
 				}
 			}
 
@@ -79,15 +90,15 @@ func TestGitCloneSingleBranch(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 
-			mcli := mockCLI{}
-			err := cli.GitCloneSingleBranch(&mcli, tc.repo, tc.branch)
+			mGit := mockGit{}
+			err := mGit.CloneSingleBranch(tc.repo, tc.branch)
 			if err != nil {
 				if errors.Is(err, tc.exepectedError) {
 					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepectedError, err)
 				}
 			} else {
-				if !reflect.DeepEqual(mcli.actualArgs, tc.expectedArgs) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mcli.actualArgs)
+				if !reflect.DeepEqual(mGit.actualArgs, tc.expectedArgs) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mGit.actualArgs)
 				}
 			}
 
@@ -113,15 +124,15 @@ func TestGitInit(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 
-			mcli := mockCLI{}
-			err := cli.GitInit(&mcli)
+			mGit := mockGit{}
+			err := mGit.Init()
 			if err != nil {
 				if errors.Is(err, tc.exepectedError) {
 					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepectedError, err)
 				}
 			} else {
-				if !reflect.DeepEqual(mcli.actualArgs, tc.expectedArgs) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mcli.actualArgs)
+				if !reflect.DeepEqual(mGit.actualArgs, tc.expectedArgs) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mGit.actualArgs)
 				}
 			}
 

@@ -6,27 +6,32 @@ import (
 )
 
 type Executable interface {
-	Exec([]string) error
+	Exec(string, []string) ([]byte, error)
+}
+
+type BuildTool interface {
+	Executable
+	Sync(map[string]string) error
 }
 
 type CLI struct {
 	Command string
 }
 
-func (cli CLI) Exec(args []string) error {
+func (cli CLI) Exec(subcommand string, args []string) ([]byte, error) {
 	path, err := exec.LookPath(cli.Command)
 	if err != nil {
-		return fmt.Errorf("%s is not installed", cli.Command)
+		return nil, fmt.Errorf("%s is not installed", cli.Command)
 	}
-	fmt.Println(path)
-	cmd := exec.Command(path, args...)
+
+	arguments := append([]string{subcommand}, args...)
+	cmd := exec.Command(path, arguments...)
 	fmt.Println(cmd)
 
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Printf("%s\n", stdoutStderr)
 
-	return nil
+	return stdoutStderr, nil
 }

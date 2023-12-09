@@ -9,6 +9,17 @@ import (
 	"github.com/csd1100/init/internal/utils"
 )
 
+type mockNpm struct {
+	cli.NpmCLI
+	actualArgs  []string
+	actualError error
+}
+
+func (mn *mockNpm) Exec(subcommand string, args []string) ([]byte, error) {
+	mn.actualArgs = args
+	return nil, nil
+}
+
 func TestNpmInstall(t *testing.T) {
 	testcases := []struct {
 		name           string
@@ -26,15 +37,15 @@ func TestNpmInstall(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 
-			mcli := mockCLI{}
-			err := cli.NpmInstall(&mcli)
+			mNpm := mockNpm{}
+			err := mNpm.Install()
 			if err != nil {
 				if errors.Is(err, tc.exepectedError) {
 					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepectedError, err)
 				}
 			} else {
-				if !reflect.DeepEqual(mcli.actualArgs, tc.expectedArgs) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mcli.actualArgs)
+				if !reflect.DeepEqual(mNpm.actualArgs, tc.expectedArgs) {
+					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expectedArgs, mNpm.actualArgs)
 				}
 			}
 

@@ -11,12 +11,6 @@ import (
 	"github.com/csd1100/init/internal/utils"
 )
 
-var git cli.CLI
-
-func init() {
-	git = cli.CLI{Command: "git"}
-}
-
 func Init(options utils.Options) error {
 	projectPath, err := os.Getwd()
 	if err != nil {
@@ -31,9 +25,6 @@ func Init(options utils.Options) error {
 	}
 
 	projectAbsPath = path.Join(projectAbsPath, options.Name)
-
-	fmt.Println(projectPath)
-	fmt.Println(projectAbsPath)
 
 	tmpDir, err := createTempDirAndChangeCWD()
 	fmt.Println(*tmpDir)
@@ -56,7 +47,7 @@ func Init(options utils.Options) error {
 
 	// 3. git init
 	if !options.NoGit {
-		err = cli.GitInit(git)
+		err = cli.Git.Init()
 		if err != nil {
 			fmt.Println("err", err.Error())
 		}
@@ -64,6 +55,12 @@ func Init(options utils.Options) error {
 
 	// 4. run Init on template
 	if !options.NoSync {
+		syncData := map[string]string{}
+		syncData["projectName"] = options.Name
+		err = options.Template.Sync(syncData)
+		if err != nil {
+			fmt.Println("err", err.Error())
+		}
 	}
 
 	os.Rename(path.Join(*tmpDir, "templates"), projectAbsPath)
@@ -80,7 +77,6 @@ func createTempDirAndChangeCWD() (*string, error) {
 		fmt.Println("er", err.Error())
 		return nil, err
 	}
-	fmt.Println(tmpDir)
 
 	err = os.Chdir(tmpDir)
 	if err != nil {
@@ -90,7 +86,7 @@ func createTempDirAndChangeCWD() (*string, error) {
 }
 
 func cloneTemplateRepoAndChangeCWD(options utils.Options) error {
-	err := cli.GitCloneSingleBranch(git, "https://github.com/csd1100/templates/", options.Template.(templates.Template).Name)
+	err := cli.Git.CloneSingleBranch("https://github.com/csd1100/templates/", options.Template.(templates.Template).Name)
 
 	cwd, err := os.Getwd()
 	if err != nil {

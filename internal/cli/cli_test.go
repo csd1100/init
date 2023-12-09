@@ -10,13 +10,14 @@ import (
 )
 
 type mockCLI struct {
+	cli.CLI
 	actualArgs  []string
 	actualError error
 }
 
-func (mc *mockCLI) Exec(args []string) error {
+func (mc *mockCLI) Exec(subcommand string, args []string) ([]byte, error) {
 	mc.actualArgs = args
-	return nil
+	return nil, nil
 }
 
 func TestExec(t *testing.T) {
@@ -50,7 +51,7 @@ func TestExec(t *testing.T) {
 		}
 
 		t.Run(tc.name, func(t *testing.T) {
-			err := testCLI.Exec(tc.expectedArgs)
+			_, err := testCLI.Exec("", tc.expectedArgs)
 			if err != nil {
 				if err.Error() != tc.exepectedError.Error() {
 					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.exepectedError, err)

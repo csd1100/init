@@ -1,13 +1,14 @@
 package templates
 
 import (
-	"log"
 	"os"
 	"text/template"
+
+	"github.com/csd1100/init/internal/cli"
 )
 
 type Project interface {
-	Init() error
+	Sync(map[string]string) error
 	ParseTemplates() error
 }
 
@@ -20,10 +21,11 @@ type Template struct {
 	Name          string
 	TemplateFiles []TemplateFile
 	TemplateData  map[string]string
+	BuildTool     cli.BuildTool
 }
 
-func (template Template) Init() error {
-	return nil
+func (template Template) Sync(data map[string]string) error {
+	return template.BuildTool.Sync(data)
 }
 
 func (tmpl Template) ParseTemplates() error {
@@ -39,8 +41,6 @@ func (tmpl Template) ParseTemplates() error {
 		}
 
 		parsedTemplate.Execute(file, tmpl.TemplateData)
-		parsedTemplate.Execute(log.Writer(), tmpl.TemplateData)
-
 	}
 
 	return nil
