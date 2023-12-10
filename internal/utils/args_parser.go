@@ -5,6 +5,7 @@ import (
 	"flag"
 	"os"
 
+	"github.com/csd1100/init/internal/helpers"
 	"github.com/csd1100/init/internal/templates"
 )
 
@@ -62,11 +63,13 @@ func validateArgs() error {
 }
 
 func ParseArgs() (*Options, error) {
+	helpers.AppLogger.Trace("Starting Parsing Arguments")
 	err := FSet.Parse(os.Args[1:])
 	if err != nil {
-		// TODO: throw error if invalid flag and refactor tests accordingly
 		if errors.Is(err, flag.ErrHelp) {
-			return &Options{Help: true}, nil
+			return &Options{Help: true}, flag.ErrHelp
+		} else {
+			return nil, err
 		}
 	}
 

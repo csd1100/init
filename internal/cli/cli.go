@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"os/exec"
+
+	"github.com/csd1100/init/internal/helpers"
 )
 
 type Executable interface {
@@ -26,7 +28,7 @@ func (cli CLI) Exec(subcommand string, args []string) ([]byte, error) {
 
 	arguments := append([]string{subcommand}, args...)
 	cmd := exec.Command(path, arguments...)
-	fmt.Println(cmd)
+	helpers.AppLogger.Debug("Executing Command: %v", cmd)
 
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {

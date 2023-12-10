@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"fmt"
+	"github.com/csd1100/init/internal/helpers"
 )
 
 type GitCLI struct {
@@ -14,7 +14,7 @@ func (Git GitCLI) Clone(repo string, args []string) error {
 	}
 	cloneArgs := append(args, repo)
 	op, err := Git.Exec("clone", cloneArgs)
-	fmt.Printf("%s\n", op)
+	helpers.AppLogger.Debug("Output of git clone:\n %s", op)
 	if err != nil {
 		return err
 	}
@@ -27,7 +27,7 @@ func (Git GitCLI) CloneSingleBranch(repo string, branch string) error {
 
 func (Git GitCLI) Init() error {
 	op, err := Git.Exec("init", []string{})
-	fmt.Printf("%s\n", op)
+	helpers.AppLogger.Debug("Output of git init:\n %s", op)
 	if err != nil {
 		return err
 	}

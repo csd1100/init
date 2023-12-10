@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"fmt"
+	"github.com/csd1100/init/internal/helpers"
 )
 
 type goLang struct {
@@ -10,8 +10,7 @@ type goLang struct {
 
 func (Go goLang) ModInit(projectName string) error {
 	op, err := Go.Exec("mod", []string{"init", projectName})
-	fmt.Printf("%s", op)
-	fmt.Printf("%s", err.Error())
+	helpers.AppLogger.Debug("Output of go mod init:\n %s", op)
 	if err != nil {
 		return err
 	}
@@ -19,7 +18,7 @@ func (Go goLang) ModInit(projectName string) error {
 }
 func (Go goLang) ModTidy() error {
 	op, err := Go.Exec("mod", []string{"tidy"})
-	fmt.Printf("%s\n", op)
+	helpers.AppLogger.Debug("Output of go mod tidy:\n %s", op)
 	if err != nil {
 		return err
 	}
@@ -27,6 +26,7 @@ func (Go goLang) ModTidy() error {
 }
 
 func (Go goLang) Sync(data map[string]string) error {
+	helpers.AppLogger.Trace("Running go Sync method")
 	err := Go.ModTidy()
 	if err != nil {
 		return err
