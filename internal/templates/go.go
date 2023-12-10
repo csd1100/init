@@ -1,27 +1,29 @@
 package templates
 
-import "github.com/csd1100/init/internal/cli"
+import (
+	"github.com/csd1100/init/internal/cli"
+	"github.com/csd1100/init/internal/helpers"
+)
 
-func generateGoTemplate(projectName string) Project {
+func generateGoTemplate(templateOptions map[string]string) Project {
 
 	var goTemplateFiles = []TemplateFile{
-		{
-			Src: "./templates/go.mod.tmpl",
-			Dst: "./go.mod",
-		},
 		{
 			Src: "./templates/main.go.tmpl",
 			Dst: "./main.go",
 		},
 	}
 
-	var templateData = make(map[string]string)
-	templateData["projectName"] = projectName
+	if templateOptions[helpers.GO_PACKAGE_NAME] != "" {
+		templateOptions[helpers.PROJECT_NAME] = templateOptions[helpers.GO_PACKAGE_NAME] + "/" +
+			templateOptions[helpers.PROJECT_NAME]
+
+	}
 
 	return Template{
 		Name:          "go",
 		TemplateFiles: goTemplateFiles,
-		TemplateData:  templateData,
+		TemplateData:  templateOptions,
 		BuildTool:     cli.Go,
 	}
 }

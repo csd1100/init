@@ -17,6 +17,7 @@ func (Npm NpmCLI) Install() error {
 
 func (Npm NpmCLI) Sync(data map[string]string) error {
 	helpers.AppLogger.Trace("Running npm Sync method")
+	helpers.AppLogger.Debug("Using options %v for Sync", data)
 	return Npm.Install()
 }
 

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/csd1100/init/internal/cli"
+	"github.com/csd1100/init/internal/helpers"
 	"github.com/csd1100/init/internal/templates"
 	"github.com/csd1100/init/internal/utils"
 )
@@ -15,16 +16,19 @@ import (
 func TestParse(t *testing.T) {
 	testTemplateFiles := []templates.TemplateFile{
 		{
-			Src: "./templates/go.mod.tmpl",
-			Dst: "./go.mod",
-		},
-		{
 			Src: "./templates/main.go.tmpl",
 			Dst: "./main.go",
 		},
 	}
+
 	testTemplateData := make(map[string]string)
-	testTemplateData["projectName"] = "test"
+	testTemplateData[helpers.PROJECT_NAME] = "test"
+
+	testTemplateDataWithOptions := make(map[string]string)
+	testTemplateDataWithOptions[helpers.PROJECT_NAME] = "test"
+	testTemplateDataWithOptions["key1"] = "val1"
+	testTemplateDataWithOptions["key2"] = "val2"
+
 	cases := []struct {
 		name           string
 		init           func()
@@ -96,13 +100,14 @@ func TestParse(t *testing.T) {
 				utils.FSet.Set("G", "true")
 				utils.FSet.Set("S", "true")
 				utils.FSet.Set("p", "/tmp/")
+				utils.FSet.Set("o", "key1=val1,key2=val2")
 			},
 			expected_value: &utils.Options{
 				Name: "test",
 				Template: templates.Template{
 					Name:          "go",
 					TemplateFiles: testTemplateFiles,
-					TemplateData:  testTemplateData,
+					TemplateData:  testTemplateDataWithOptions,
 					BuildTool:     cli.Go,
 				},
 				NoGit:  true,
@@ -119,13 +124,14 @@ func TestParse(t *testing.T) {
 				utils.FSet.Set("no-git", "true")
 				utils.FSet.Set("no-sync", "true")
 				utils.FSet.Set("path", "/tmp/")
+				utils.FSet.Set("options", "key1=val1,key2=val2")
 			},
 			expected_value: &utils.Options{
 				Name: "test",
 				Template: templates.Template{
 					Name:          "go",
 					TemplateFiles: testTemplateFiles,
-					TemplateData:  testTemplateData,
+					TemplateData:  testTemplateDataWithOptions,
 					BuildTool:     cli.Go,
 				},
 				NoGit:  true,

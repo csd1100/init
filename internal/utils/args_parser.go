@@ -23,6 +23,7 @@ var templateName string
 var noGit bool
 var noSync bool
 var path string
+var templateOptions string
 var FSet = flag.FlagSet{}
 
 func init() {
@@ -32,6 +33,8 @@ func init() {
 	FSet.StringVar(&templateName, "template", "", "name for the project")
 	FSet.StringVar(&path, "p", "", "path for the project")
 	FSet.StringVar(&path, "path", "", "path for the project")
+	FSet.StringVar(&templateOptions, "o", "", "options for the template")
+	FSet.StringVar(&templateOptions, "options", "", "options for the template")
 	FSet.BoolVar(&noGit, "G", false, "do not initialize git repository")
 	FSet.BoolVar(&noGit, "no-git", false, "do not initialize git repository")
 	FSet.BoolVar(&noSync, "S", false, "do not sync project (e.g. npm install, go mod tidy)")
@@ -78,7 +81,7 @@ func ParseArgs() (*Options, error) {
 		return nil, err
 	}
 
-	template, err := templates.GetTemplate(templateName, name)
+	template, err := templates.GetTemplate(templateName, name, templateOptions)
 	if err != nil {
 		return nil, err
 	}

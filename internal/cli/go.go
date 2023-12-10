@@ -27,7 +27,12 @@ func (Go goLang) ModTidy() error {
 
 func (Go goLang) Sync(data map[string]string) error {
 	helpers.AppLogger.Trace("Running go Sync method")
-	err := Go.ModTidy()
+	helpers.AppLogger.Debug("Using options %v for Sync", data)
+	err := Go.ModInit(data[helpers.PROJECT_NAME])
+	if err != nil {
+		return err
+	}
+	err = Go.ModTidy()
 	if err != nil {
 		return err
 	}

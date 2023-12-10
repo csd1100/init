@@ -2,9 +2,11 @@ package templates
 
 import (
 	"os"
+	"strings"
 	"text/template"
 
 	"github.com/csd1100/init/internal/cli"
+	"github.com/csd1100/init/internal/helpers"
 )
 
 type Project interface {
@@ -46,13 +48,30 @@ func (tmpl Template) ParseTemplates() error {
 	return nil
 }
 
-func GetTemplate(name string, projectName string) (Project, error) {
-	switch name {
+func GetTemplate(templateName string, projectName string, stringOptions string) (Project, error) {
+	templateOptions := make(map[string]string)
+
+	if stringOptions != "" {
+		templateOptions = getTemplateOptions(stringOptions)
+	}
+
+	templateOptions[helpers.PROJECT_NAME] = projectName
+
+	switch templateName {
 	case "go":
-		return generateGoTemplate(projectName), nil
+		return generateGoTemplate(templateOptions), nil
 	case "js":
-		return generateJSTemplate(projectName), nil
+		return generateJSTemplate(templateOptions), nil
 	default:
 		return nil, ErrInvalidArgTemplate
 	}
+}
+
+func getTemplateOptions(templateOptions string) map[string]string {
+	templOptions := make(map[string]string)
+	for _, option := range strings.Split(templateOptions, ",") {
+		split := strings.Split(option, "=")
+		templOptions[split[0]] = split[1]
+	}
+	return templOptions
 }

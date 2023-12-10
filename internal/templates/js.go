@@ -4,7 +4,7 @@ import (
 	"github.com/csd1100/init/internal/cli"
 )
 
-func generateJSTemplate(projectName string) Project {
+func generateJSTemplate(templateOptions map[string]string) Project {
 	var jSTemplateFiles = []TemplateFile{
 		{
 			Src: "./templates/package.json.tmpl",
@@ -12,13 +12,10 @@ func generateJSTemplate(projectName string) Project {
 		},
 	}
 
-	var templateData = make(map[string]string)
-	templateData["projectName"] = projectName
-
 	return Template{
 		Name:          "js",
 		TemplateFiles: jSTemplateFiles,
-		TemplateData:  templateData,
+		TemplateData:  templateOptions,
 		BuildTool:     cli.Npm,
 	}
 }

@@ -44,9 +44,7 @@ func Init(options utils.Options) error {
 
 	// 4. run Init on template
 	if !options.NoSync {
-		syncData := map[string]string{}
-		syncData["projectName"] = options.Name
-		err = options.Template.Sync(syncData)
+		err = options.Template.Sync(options.Template.(templates.Template).TemplateData)
 		if err != nil {
 			return errors.New(fmt.Sprintf("Error while running sync, Err:%v", err.Error()))
 		}
