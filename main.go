@@ -9,12 +9,11 @@ import (
 func main() {
 	helpers.AppLogger.Trace("Starting init....")
 	options, err := utils.ParseArgs()
-	if err != nil {
-		helpers.AppLogger.Panic(err.Error())
-	}
-
 	if options.Help {
 		return
+	}
+	if err != nil {
+		helpers.AppLogger.Panic(err.Error())
 	}
 
 	err = core.Init(*options)
