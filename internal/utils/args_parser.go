@@ -70,7 +70,7 @@ func ParseArgs() (*Options, error) {
 	err := FSet.Parse(os.Args[1:])
 	if err != nil {
 		if errors.Is(err, flag.ErrHelp) {
-			return &Options{Help: true}, flag.ErrHelp
+			return &Options{Help: true}, nil
 		} else {
 			return nil, err
 		}
