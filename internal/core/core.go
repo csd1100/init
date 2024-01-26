@@ -50,7 +50,7 @@ func Init(options utils.Options) error {
 		}
 	}
 
-	os.Rename(path.Join(tmpDir, "templates"), projectAbsPath)
+	err = os.Rename(path.Join(tmpDir, "templates"), projectAbsPath)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Error while moving the project, Err:%v", err.Error()))
 	}
