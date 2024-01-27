@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/csd1100/init/internal/cli"
+	"github.com/csd1100/init/internal/helpers"
 	"github.com/csd1100/init/internal/templates"
 	"github.com/csd1100/init/internal/utils"
 )
@@ -50,7 +51,7 @@ func Init(options utils.Options) error {
 		}
 	}
 
-	err = os.Rename(path.Join(tmpDir, "templates"), projectAbsPath)
+	err = helpers.MoveDir(path.Join(tmpDir, "templates"), projectAbsPath)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Error while moving the project, Err:%v", err.Error()))
 	}
