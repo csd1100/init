@@ -63,7 +63,7 @@ func GetTemplate(templateName string, projectName string, stringOptions string) 
 	case "js":
 		return generateJSTemplate(templateOptions), nil
 	default:
-		return nil, ErrInvalidArgTemplate
+		return nil, helpers.ErrInvalidArgTemplate
 	}
 }
 

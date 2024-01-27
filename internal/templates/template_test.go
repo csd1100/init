@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/csd1100/init/internal/helpers"
 	"github.com/csd1100/init/internal/templates"
-	"github.com/csd1100/init/internal/utils"
 )
 
 func TestParseTemplate(t *testing.T) {
@@ -67,7 +67,7 @@ func TestParseTemplate(t *testing.T) {
 
 			if err != nil {
 				if !errors.Is(err, tc.expected_error) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expected_error, err)
+					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.ERROR, tc.expected_error, err)
 				}
 			} else {
 				actualFile, readErr := os.ReadFile(tc.templ.TemplateFiles[0].Dst)
@@ -76,11 +76,11 @@ func TestParseTemplate(t *testing.T) {
 				}
 
 				if strings.Compare(string(actualFile), tc.expected_value) != 0 {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expected_value, string(actualFile))
+					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.VALUE, tc.expected_value, string(actualFile))
 				}
 
 				if err != nil {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expected_error, err)
+					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.ERROR, tc.expected_error, err)
 				}
 			}
 		})

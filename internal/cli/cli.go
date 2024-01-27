@@ -8,7 +8,8 @@ import (
 )
 
 type Executable interface {
-	Exec(string, []string) ([]byte, error)
+	GetCommand() string
+	Exec(string, []string) error
 }
 
 type BuildTool interface {
@@ -16,14 +17,10 @@ type BuildTool interface {
 	Sync(map[string]string) error
 }
 
-type CLI struct {
-	Command string
-}
-
-func (cli CLI) Exec(subcommand string, args []string) ([]byte, error) {
-	path, err := exec.LookPath(cli.Command)
+func execute(exe Executable, subcommand string, args []string) error {
+	path, err := exec.LookPath(exe.GetCommand())
 	if err != nil {
-		return nil, fmt.Errorf("%s is not installed", cli.Command)
+		return helpers.ErrExecNotFound
 	}
 
 	arguments := append([]string{subcommand}, args...)
@@ -32,8 +29,10 @@ func (cli CLI) Exec(subcommand string, args []string) ([]byte, error) {
 
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return stdoutStderr, nil
+	helpers.AppLogger.Debug("Output of command %s:\n%v", cmd, string(stdoutStderr))
+
+	return nil
 }

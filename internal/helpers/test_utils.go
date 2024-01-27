@@ -1,4 +1,4 @@
-package utils
+package helpers
 
 const ERROR = "error"
 const VALUE = "value"

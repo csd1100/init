@@ -44,21 +44,21 @@ func init() {
 func validateArgs() error {
 
 	if name == "" {
-		return ErrArgNameRequired
+		return helpers.ErrArgNameRequired
 	}
 
 	if string(name[0]) == "-" {
-		return ErrInvalidArgName
+		return helpers.ErrInvalidArgName
 	}
 
 	if templateName == "" {
-		return ErrArgTemplateRequired
+		return helpers.ErrArgTemplateRequired
 	}
 
 	if path != "" {
 		_, err := os.ReadDir(path)
 		if err != nil {
-			return ErrInvalidArgPath
+			return helpers.ErrInvalidArgPath
 		}
 	}
 

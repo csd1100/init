@@ -5,38 +5,44 @@ import (
 )
 
 type goLang struct {
-	CLI
+	Command string
 }
 
-func (Go goLang) ModInit(projectName string) error {
-	op, err := Go.Exec("mod", []string{"init", projectName})
-	helpers.AppLogger.Debug("Output of go mod init:\n %s", op)
+var Go = goLang{Command: "go"}
+
+func (goCLI goLang) GetCommand() string {
+	return Go.Command
+}
+
+func (goCLI goLang) Exec(subcommand string, args []string) error {
+	return execute(goCLI, subcommand, args)
+}
+
+func (goCLI goLang) ModInit(projectName string) error {
+	return Go.Exec("mod", []string{"init", projectName})
+}
+
+func (goCLI goLang) ModTidy() error {
+	err := Go.Exec("mod", []string{"tidy"})
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (Go goLang) ModTidy() error {
-	op, err := Go.Exec("mod", []string{"tidy"})
-	helpers.AppLogger.Debug("Output of go mod tidy:\n %s", op)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
-func (Go goLang) Sync(data map[string]string) error {
+func (goCLI goLang) Sync(data map[string]string) error {
 	helpers.AppLogger.Trace("Running go Sync method")
 	helpers.AppLogger.Debug("Using options %v for Sync", data)
+
 	err := Go.ModInit(data[helpers.PROJECT_NAME])
 	if err != nil {
 		return err
 	}
+
 	err = Go.ModTidy()
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
-
-var Go = goLang{CLI{Command: "go"}}

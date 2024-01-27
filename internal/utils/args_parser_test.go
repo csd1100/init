@@ -38,7 +38,7 @@ func TestParse(t *testing.T) {
 		{
 			name:           "returns error if empty args",
 			expected_value: nil,
-			expected_error: utils.ErrArgNameRequired,
+			expected_error: helpers.ErrArgNameRequired,
 		},
 		{
 			name: "returns error if name not included",
@@ -46,7 +46,7 @@ func TestParse(t *testing.T) {
 				utils.FSet.Set("t", "go")
 			},
 			expected_value: nil,
-			expected_error: utils.ErrArgNameRequired,
+			expected_error: helpers.ErrArgNameRequired,
 		},
 		{
 			name: "returns error if template not included",
@@ -54,7 +54,7 @@ func TestParse(t *testing.T) {
 				utils.FSet.Set("n", "test")
 			},
 			expected_value: nil,
-			expected_error: utils.ErrArgTemplateRequired,
+			expected_error: helpers.ErrArgTemplateRequired,
 		},
 		{
 			name: "returns error if invalid template",
@@ -63,7 +63,7 @@ func TestParse(t *testing.T) {
 				utils.FSet.Set("t", "test")
 			},
 			expected_value: nil,
-			expected_error: templates.ErrInvalidArgTemplate,
+			expected_error: helpers.ErrInvalidArgTemplate,
 		},
 		{
 			name: "returns error if invalid path",
@@ -73,7 +73,7 @@ func TestParse(t *testing.T) {
 				utils.FSet.Set("p", "invalid_directory_11111")
 			},
 			expected_value: nil,
-			expected_error: utils.ErrInvalidArgPath,
+			expected_error: helpers.ErrInvalidArgPath,
 		},
 		{
 			name: "returns options if only name and template",
@@ -161,17 +161,17 @@ func TestParse(t *testing.T) {
 
 			if err != nil {
 				if !errors.Is(err, tc.expected_error) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expected_error, err)
+					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.ERROR, tc.expected_error, err)
 				}
 				if actual != nil {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, tc.expected_value, actual)
+					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.VALUE, tc.expected_value, actual)
 				}
 			} else {
 				if !reflect.DeepEqual(*actual, *tc.expected_value) {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.VALUE, *tc.expected_value, *actual)
+					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.VALUE, *tc.expected_value, *actual)
 				}
 				if err != nil {
-					t.Errorf(utils.FAILURE_MESSAGE, tc.name, utils.ERROR, tc.expected_error, err)
+					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.ERROR, tc.expected_error, err)
 				}
 			}
 

@@ -1,24 +1,29 @@
 package cli
 
-import "github.com/csd1100/init/internal/helpers"
+import (
+	"github.com/csd1100/init/internal/helpers"
+)
 
 type NpmCLI struct {
-	CLI
+	Command string
 }
 
-func (Npm NpmCLI) Install() error {
-	op, err := Npm.Exec("install", []string{})
-	helpers.AppLogger.Debug("Output of npm install:\n %s", op)
-	if err != nil {
-		return err
-	}
-	return nil
+var Npm = NpmCLI{Command: "npm"}
+
+func (npm NpmCLI) GetCommand() string {
+	return npm.Command
 }
 
-func (Npm NpmCLI) Sync(data map[string]string) error {
+func (npm NpmCLI) Exec(subcommand string, args []string) error {
+	return execute(npm, subcommand, args)
+}
+
+func (npm NpmCLI) Install() error {
+	return npm.Exec("install", []string{})
+}
+
+func (npm NpmCLI) Sync(data map[string]string) error {
 	helpers.AppLogger.Trace("Running npm Sync method")
 	helpers.AppLogger.Debug("Using options %v for Sync", data)
 	return Npm.Install()
 }
-
-var Npm = NpmCLI{CLI{Command: "npm"}}
