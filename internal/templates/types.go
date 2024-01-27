@@ -62,6 +62,8 @@ func GetTemplate(templateName string, projectName string, stringOptions string) 
 		return generateGoTemplate(templateOptions), nil
 	case "js":
 		return generateJSTemplate(templateOptions), nil
+	case "rust":
+		return generateRustTemplate(templateOptions), nil
 	default:
 		return nil, helpers.ErrInvalidArgTemplate
 	}
