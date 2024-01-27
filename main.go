@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	helpers.AppLogger.CurrentLevel = helpers.WARN_LEVEL
 	helpers.AppLogger.Trace("Starting init....")
 	options, err := utils.ParseArgs()
 	if err != nil {
