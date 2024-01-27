@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"os/exec"
 
 	"github.com/csd1100/init/internal/helpers"
