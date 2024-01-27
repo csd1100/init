@@ -12,7 +12,6 @@ type Executable interface {
 }
 
 type BuildTool interface {
-	Executable
 	Sync(map[string]string) error
 }
 

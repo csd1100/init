@@ -1,19 +1,27 @@
 package cli
 
-type gitCLI struct {
+type gitExe struct {
 	Command string
 }
 
-var Git = gitCLI{
-	Command: "git",
-}
-
-func (git gitCLI) GetCommand() string {
+func (git gitExe) GetCommand() string {
 	return git.Command
 }
 
-func (git gitCLI) Exec(subcommand string, args []string) error {
+func (git gitExe) Exec(subcommand string, args []string) error {
 	return execute(git, subcommand, args)
+}
+
+func getGitExecutable() gitExe {
+	return gitExe{Command: "git"}
+}
+
+type gitCLI struct {
+	exe Executable
+}
+
+var Git = gitCLI{
+	exe: getGitExecutable(),
 }
 
 func (git gitCLI) Clone(repo string, args []string) error {
@@ -22,7 +30,7 @@ func (git gitCLI) Clone(repo string, args []string) error {
 	}
 
 	cloneArgs := append(args, repo)
-	return git.Exec("clone", cloneArgs)
+	return git.exe.Exec("clone", cloneArgs)
 }
 
 func (git gitCLI) CloneSingleBranch(repo string, branch string) error {
@@ -30,5 +38,5 @@ func (git gitCLI) CloneSingleBranch(repo string, branch string) error {
 }
 
 func (git gitCLI) Init() error {
-	return git.Exec("init", []string{})
+	return git.exe.Exec("init", []string{})
 }
