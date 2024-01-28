@@ -14,18 +14,13 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	testTemplateFiles := []templates.TemplateFile{
-		{
-			Src: "./templates/main.go.tmpl",
-			Dst: "./main.go",
-		},
-	}
-
 	testTemplateData := make(map[string]string)
 	testTemplateData[helpers.PROJECT_NAME] = "test"
+	testTemplateData[helpers.GO_PACKAGE_NAME] = "project"
 
 	testTemplateDataWithOptions := make(map[string]string)
 	testTemplateDataWithOptions[helpers.PROJECT_NAME] = "test"
+	testTemplateDataWithOptions[helpers.GO_PACKAGE_NAME] = "project"
 	testTemplateDataWithOptions["key1"] = "val1"
 	testTemplateDataWithOptions["key2"] = "val2"
 
@@ -83,11 +78,10 @@ func TestParse(t *testing.T) {
 			},
 			expected_value: &utils.Options{
 				Name: "test",
-				Template: templates.Template{
-					Name:          "go",
-					TemplateFiles: testTemplateFiles,
-					TemplateData:  testTemplateData,
-					BuildTool:     cli.Go,
+				Template: &templates.Template{
+					Name:         "go",
+					TemplateData: testTemplateData,
+					BuildTool:    cli.Go,
 				},
 			},
 			expected_error: nil,
@@ -104,11 +98,10 @@ func TestParse(t *testing.T) {
 			},
 			expected_value: &utils.Options{
 				Name: "test",
-				Template: templates.Template{
-					Name:          "go",
-					TemplateFiles: testTemplateFiles,
-					TemplateData:  testTemplateDataWithOptions,
-					BuildTool:     cli.Go,
+				Template: &templates.Template{
+					Name:         "go",
+					TemplateData: testTemplateDataWithOptions,
+					BuildTool:    cli.Go,
 				},
 				NoGit:  true,
 				NoSync: true,
@@ -128,11 +121,10 @@ func TestParse(t *testing.T) {
 			},
 			expected_value: &utils.Options{
 				Name: "test",
-				Template: templates.Template{
-					Name:          "go",
-					TemplateFiles: testTemplateFiles,
-					TemplateData:  testTemplateDataWithOptions,
-					BuildTool:     cli.Go,
+				Template: &templates.Template{
+					Name:         "go",
+					TemplateData: testTemplateDataWithOptions,
+					BuildTool:    cli.Go,
 				},
 				NoGit:  true,
 				NoSync: true,
