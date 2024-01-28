@@ -34,12 +34,7 @@ func (goCLI goLang) Sync(data map[string]string) error {
 	helpers.AppLogger.Trace("Running go Sync method")
 	helpers.AppLogger.Debug("Using options %v for Sync", data)
 
-	err := goCLI.ModInit(data[helpers.PROJECT_NAME])
-	if err != nil {
-		return err
-	}
-
-	err = goCLI.ModTidy()
+	err := goCLI.ModTidy()
 	if err != nil {
 		return err
 	}

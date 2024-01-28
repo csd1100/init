@@ -15,29 +15,33 @@ type Project interface {
 }
 
 type TemplateFile struct {
-	Src string
-	Dst string
+	Template string `json:"template"`
+	Real     string `json:"real"`
+}
+
+type TemplateFiles struct {
+	Files []TemplateFile `json:"template-files"`
 }
 
 type Template struct {
 	Name          string
-	TemplateFiles []TemplateFile
+	TemplateFiles TemplateFiles
 	TemplateData  map[string]string
 	BuildTool     cli.BuildTool
 }
 
-func (template Template) Sync(data map[string]string) error {
+func (template *Template) Sync(data map[string]string) error {
 	return template.BuildTool.Sync(data)
 }
 
-func (tmpl Template) ParseTemplates() error {
-	for _, templateFile := range tmpl.TemplateFiles {
-		parsedTemplate, err := template.ParseFiles(templateFile.Src)
+func (tmpl *Template) ParseTemplates() error {
+	for _, templateFile := range tmpl.TemplateFiles.Files {
+		parsedTemplate, err := template.ParseFiles(templateFile.Template)
 		if err != nil {
 			return err
 		}
 
-		file, err := os.Create(templateFile.Dst)
+		file, err := os.Create(templateFile.Real)
 		if err != nil {
 			return err
 		}
@@ -59,11 +63,26 @@ func GetTemplate(templateName string, projectName string, stringOptions string) 
 
 	switch templateName {
 	case "go":
-		return generateGoTemplate(templateOptions), nil
+		if templateOptions[helpers.GO_PACKAGE_NAME] == "" {
+			templateOptions[helpers.GO_PACKAGE_NAME] = "project"
+		}
+		return &Template{
+			Name:         "go",
+			TemplateData: templateOptions,
+			BuildTool:    cli.Go,
+		}, nil
 	case "js":
-		return generateJSTemplate(templateOptions), nil
+		return &Template{
+			Name:         "js",
+			TemplateData: templateOptions,
+			BuildTool:    cli.Npm,
+		}, nil
 	case "rust":
-		return generateRustTemplate(templateOptions), nil
+		return &Template{
+			Name:         "rust",
+			TemplateData: templateOptions,
+			BuildTool:    cli.Cargo,
+		}, nil
 	default:
 		return nil, helpers.ErrInvalidArgTemplate
 	}

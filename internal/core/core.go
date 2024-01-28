@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -45,7 +46,7 @@ func Init(options utils.Options) error {
 
 	// 4. run Init on template
 	if !options.NoSync {
-		err = options.Template.Sync(options.Template.(templates.Template).TemplateData)
+		err = options.Template.Sync(options.Template.(*templates.Template).TemplateData)
 		if err != nil {
 			return errors.New(fmt.Sprintf("Error while running sync, Err:%v", err.Error()))
 		}
@@ -56,7 +57,7 @@ func Init(options utils.Options) error {
 		return errors.New(fmt.Sprintf("Error while moving the project, Err:%v", err.Error()))
 	}
 
-	return nil
+	return os.RemoveAll(tmpDir)
 }
 
 func getProjectAbsolutePath(options utils.Options) (string, error) {
@@ -89,7 +90,8 @@ func createTempDirAndChangeCWD() (*string, error) {
 }
 
 func cloneTemplateRepoAndChangeCWD(options utils.Options) error {
-	err := cli.Git.CloneSingleBranch("https://github.com/csd1100/templates/", options.Template.(templates.Template).Name)
+	err := cli.Git.CloneSingleBranch("https://github.com/csd1100/templates/",
+		options.Template.(*templates.Template).Name)
 
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -111,21 +113,41 @@ func cleanupProjectDir() error {
 	if err != nil {
 		return errors.New("Error removing templates directory")
 	}
+
+	err = os.Remove(helpers.TEMPLATES_FILES_CONFIG)
+	if err != nil {
+		return errors.New("Error removing " + helpers.TEMPLATES_FILES_CONFIG)
+	}
 	return nil
 }
 
 func setupRepo(options utils.Options) (string, error) {
 
-	// 1. create temo Directory and clone repo in it
+	// 1. Create temp Directory and
 	tmpDir, err := createTempDirAndChangeCWD()
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Error Creating a Temporary Directory, Err:%v", err.Error()))
 	}
 
+	// 2. Clone repo in it and change into that direcotry
 	err = cloneTemplateRepoAndChangeCWD(options)
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Error while Cloning a Template, Err:%v", err.Error()))
 	}
+
+	// 3. Parse template-files.json
+	var templateFiles templates.TemplateFiles
+	contents, err := os.ReadFile(helpers.TEMPLATES_FILES_CONFIG)
+	if err != nil {
+		return "", fmt.Errorf("Unable to read config file '%v'", helpers.TEMPLATES_FILES_CONFIG)
+	}
+
+	err = json.Unmarshal(contents, &templateFiles)
+	if err != nil {
+		return "", fmt.Errorf("Unable to parse config '%v', due to error: '%w'", helpers.TEMPLATES_FILES_CONFIG, err)
+	}
+
+	options.Template.(*templates.Template).TemplateFiles = templateFiles
 
 	return *tmpDir, nil
 }

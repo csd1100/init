@@ -23,9 +23,11 @@ func TestParseTemplate(t *testing.T) {
 			name: "ParseTemplates generates parsed file",
 			templ: templates.Template{
 				Name: "test",
-				TemplateFiles: []templates.TemplateFile{
-					{
-						Src: "./testdata/test_data.json.tmpl",
+				TemplateFiles: templates.TemplateFiles{
+					Files: []templates.TemplateFile{
+						{
+							Template: "./testdata/test_data.json.tmpl",
+						},
 					},
 				},
 				TemplateData: map[string]string{
@@ -41,9 +43,11 @@ func TestParseTemplate(t *testing.T) {
 			name: "ParseTemplates replaces existing file",
 			templ: templates.Template{
 				Name: "test",
-				TemplateFiles: []templates.TemplateFile{
-					{
-						Src: "./testdata/test_data.json.tmpl",
+				TemplateFiles: templates.TemplateFiles{
+					Files: []templates.TemplateFile{
+						{
+							Template: "./testdata/test_data.json.tmpl",
+						},
 					},
 				},
 				TemplateData: map[string]string{
@@ -61,7 +65,7 @@ func TestParseTemplate(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			dir := t.TempDir()
-			tc.templ.TemplateFiles[0].Dst = fmt.Sprintf("%v/test_data.json", dir)
+			tc.templ.TemplateFiles.Files[0].Real = fmt.Sprintf("%v/test_data.json", dir)
 
 			err := tc.templ.ParseTemplates()
 
@@ -70,7 +74,7 @@ func TestParseTemplate(t *testing.T) {
 					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.ERROR, tc.expected_error, err)
 				}
 			} else {
-				actualFile, readErr := os.ReadFile(tc.templ.TemplateFiles[0].Dst)
+				actualFile, readErr := os.ReadFile(tc.templ.TemplateFiles.Files[0].Real)
 				if readErr != nil {
 					t.Errorf("unable to read actual file")
 				}
