@@ -20,6 +20,10 @@ func Init(options utils.Options) error {
 		return errors.New(fmt.Sprintf("Error Generating Project Path, Err:%v", err.Error()))
 	}
 
+	if _, err := os.Stat(projectAbsPath); err == nil {
+		return errors.New(fmt.Sprintf("'%s' is already present.", projectAbsPath))
+	}
+
 	tmpDir, err := setupRepo(options)
 	if err != nil {
 		return err
