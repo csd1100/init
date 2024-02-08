@@ -78,6 +78,7 @@ func GetTemplate(templateName string, projectName string, stringOptions string) 
 			BuildTool:    cli.Npm,
 		}, nil
 	case "rust":
+		templateOptions[helpers.PROJECT_NAME_WITH_REPLACED_HYPHENS] = strings.ReplaceAll(projectName, "-", "_")
 		return &Template{
 			Name:         "rust",
 			TemplateData: templateOptions,
