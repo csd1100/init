@@ -27,6 +27,7 @@ func execute(exe Executable, subcommand string, args []string) error {
 
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
+		helpers.AppLogger.Error("Error for command %s:\n%v", cmd, string(stdoutStderr))
 		return err
 	}
 
