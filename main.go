@@ -11,7 +11,7 @@ func main() {
 	helpers.AppLogger.Trace("Starting init....")
 	options, err := utils.ParseArgs()
 	if err != nil {
-		helpers.AppLogger.Panic(err.Error())
+		helpers.AppLogger.Error(err.Error())
 	}
 
 	if options.Help {
