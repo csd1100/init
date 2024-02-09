@@ -44,3 +44,16 @@
   then this will create go module with name `packageName\project_name`.  
    i.e. if you use options `-t go -n my-app -o packageName=github.com/csd1100`
   the project module name will be `github.com/csd1100/my-app`
+
+## For developers
+
+- If Following environment variables are set local templates can be used:
+
+```sh
+export DEV=true
+export INIT_DEV_REPO_PATH=`<local path to the templates repo>`
+export INIT_DEV_BRANCH_NAME=`<name of the branch to pull>`
+```
+
+- Using only `INIT_DEV_BRANCH_NAME` will use branch from
+  https://github.com/csd1100/templates repository.
