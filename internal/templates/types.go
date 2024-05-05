@@ -71,9 +71,9 @@ func GetTemplate(templateName string, projectName string, stringOptions string) 
 			TemplateData: templateOptions,
 			BuildTool:    cli.Go,
 		}, nil
-	case "js":
+	case "js", "electron-react-ts":
 		return &Template{
-			Name:         "js",
+			Name:         templateName,
 			TemplateData: templateOptions,
 			BuildTool:    cli.Npm,
 		}, nil
