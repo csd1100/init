@@ -25,23 +25,23 @@ func recreateFile(from, to string) error {
 func recreateDirectory(from, to string) error {
 	AppLogger.Trace("Creating Directory %v -> %v", from, to)
 
-	oldstats, err := os.Stat(from)
+	oldStats, err := os.Stat(from)
 	if err != nil {
 		return err
 	}
 
-	return os.Mkdir(to, oldstats.Mode())
+	return os.Mkdir(to, oldStats.Mode())
 }
 
 func recreateSymlink(from, to string) error {
-	realfile, err := os.Readlink(from)
+	realFile, err := os.Readlink(from)
 	if err != nil {
 		return err
 	}
 
-	AppLogger.Trace("Creating Symlink %v -> %v for %v", from, to, realfile)
+	AppLogger.Trace("Creating Symlink %v -> %v for %v", from, to, realFile)
 
-	return os.Symlink(realfile, to)
+	return os.Symlink(realFile, to)
 }
 
 func MoveDir(from string, to string) error {
@@ -54,12 +54,12 @@ func MoveDir(from string, to string) error {
 			return err
 		}
 
-		oldfile, err := filepath.Abs(path.Join(from, name))
+		oldFile, err := filepath.Abs(path.Join(from, name))
 		if err != nil {
 			return err
 		}
 
-		newfile, err := filepath.Abs(path.Join(to, name))
+		newFile, err := filepath.Abs(path.Join(to, name))
 		if err != nil {
 			return err
 		}
@@ -67,15 +67,24 @@ func MoveDir(from string, to string) error {
 		switch d.Type() {
 		case fs.ModeDir:
 			{
-				recreateDirectory(oldfile, newfile)
+				err := recreateDirectory(oldFile, newFile)
+				if err != nil {
+					return err
+				}
 			}
 		case fs.ModeSymlink:
 			{
-				recreateSymlink(oldfile, newfile)
+				err := recreateSymlink(oldFile, newFile)
+				if err != nil {
+					return err
+				}
 			}
 		default:
 			if d.Type().IsRegular() {
-				recreateFile(oldfile, newfile)
+				err := recreateFile(oldFile, newFile)
+				if err != nil {
+					return err
+				}
 			}
 		}
 

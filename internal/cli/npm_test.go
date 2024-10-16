@@ -18,20 +18,20 @@ func (mn *mockNpm) Exec(subcommand string, args []string) error {
 	return nil
 }
 
-func (mg *mockNpm) GetCommand() string {
+func (mn *mockNpm) GetCommand() string {
 	return "mock"
 }
 
 func TestNpmInstall(t *testing.T) {
 	testcases := []struct {
-		name           string
-		expectedArgs   []string
-		exepectedError error
+		name          string
+		expectedArgs  []string
+		expectedError error
 	}{
 		{
-			name:           "NpmInstall passes correct args",
-			expectedArgs:   []string{"install"},
-			exepectedError: nil,
+			name:          "NpmInstall passes correct args",
+			expectedArgs:  []string{"install"},
+			expectedError: nil,
 		},
 	}
 
@@ -42,16 +42,16 @@ func TestNpmInstall(t *testing.T) {
 			mNpm := npmCLI{exe: &mockNpm{}}
 			err := mNpm.Install()
 			if err != nil {
-				if !errors.Is(err, tc.exepectedError) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
+				if !errors.Is(err, tc.expectedError) {
+					t.Errorf(helpers.FailureMessage,
 						tc.name,
 						helpers.ERROR,
-						tc.exepectedError,
+						tc.expectedError,
 						err)
 				}
 			} else {
 				if !reflect.DeepEqual(mNpm.exe.(*mockNpm).actualArgs, tc.expectedArgs) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
+					t.Errorf(helpers.FailureMessage,
 						tc.name,
 						helpers.VALUE,
 						tc.expectedArgs,

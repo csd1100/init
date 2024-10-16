@@ -13,15 +13,15 @@ import (
 
 func TestParseTemplate(t *testing.T) {
 	cases := []struct {
-		name           string
-		templ          templates.Template
-		filename       string
-		expected_error error
-		expected_value string
+		name          string
+		tmpl          templates.Template
+		filename      string
+		expectedError error
+		expectedValue string
 	}{
 		{
 			name: "ParseTemplates generates parsed file",
-			templ: templates.Template{
+			tmpl: templates.Template{
 				Name: "test",
 				TemplateFiles: templates.TemplateFiles{
 					Files: []templates.TemplateFile{
@@ -35,13 +35,13 @@ func TestParseTemplate(t *testing.T) {
 					"value": "value",
 				},
 			},
-			expected_value: fmt.Sprintln(`{
+			expectedValue: fmt.Sprintln(`{
     "key": "value"
 }`),
 		},
 		{
 			name: "ParseTemplates replaces existing file",
-			templ: templates.Template{
+			tmpl: templates.Template{
 				Name: "test",
 				TemplateFiles: templates.TemplateFiles{
 					Files: []templates.TemplateFile{
@@ -55,8 +55,8 @@ func TestParseTemplate(t *testing.T) {
 					"value": "new_value",
 				},
 			},
-			filename: "exisiting_file.json",
-			expected_value: fmt.Sprintln(`{
+			filename: "existing_file.json",
+			expectedValue: fmt.Sprintln(`{
     "new_key": "new_value"
 }`),
 		},
@@ -65,26 +65,26 @@ func TestParseTemplate(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			dir := t.TempDir()
-			tc.templ.TemplateFiles.Files[0].Real = fmt.Sprintf("%v/test_data.json", dir)
+			tc.tmpl.TemplateFiles.Files[0].Real = fmt.Sprintf("%v/test_data.json", dir)
 
-			err := tc.templ.ParseTemplates()
+			err := tc.tmpl.ParseTemplates()
 
 			if err != nil {
-				if !errors.Is(err, tc.expected_error) {
-					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.ERROR, tc.expected_error, err)
+				if !errors.Is(err, tc.expectedError) {
+					t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, err)
 				}
 			} else {
-				actualFile, readErr := os.ReadFile(tc.templ.TemplateFiles.Files[0].Real)
+				actualFile, readErr := os.ReadFile(tc.tmpl.TemplateFiles.Files[0].Real)
 				if readErr != nil {
 					t.Errorf("unable to read actual file")
 				}
 
-				if strings.Compare(string(actualFile), tc.expected_value) != 0 {
-					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.VALUE, tc.expected_value, string(actualFile))
+				if strings.Compare(string(actualFile), tc.expectedValue) != 0 {
+					t.Errorf(helpers.FailureMessage, tc.name, helpers.VALUE, tc.expectedValue, string(actualFile))
 				}
 
 				if err != nil {
-					t.Errorf(helpers.FAILURE_MESSAGE, tc.name, helpers.ERROR, tc.expected_error, err)
+					t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, err)
 				}
 			}
 		})

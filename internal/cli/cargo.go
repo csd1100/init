@@ -36,7 +36,7 @@ func (cargo cargoCLI) Clean() error {
 	return cargo.exe.Exec("clean", []string{})
 }
 
-func (cargo cargoCLI) Sync(args map[string]string) error {
+func (cargo cargoCLI) Sync(_ map[string]string) error {
 	err := cargo.Fetch()
 	if err != nil {
 		return err

@@ -24,7 +24,7 @@ var noGit bool
 var noSync bool
 var path string
 var templateOptions string
-var verbosity int = -99
+var verbosity = -99
 var FSet = flag.FlagSet{}
 
 func init() {

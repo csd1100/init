@@ -99,23 +99,23 @@ func cloneTemplateRepoAndChangeCWD(options utils.Options) error {
 	branch := options.Template.(*templates.Template).Name
 
 	if dev, isPresent := os.LookupEnv(helpers.DEV); isPresent && dev == "true" {
-		if repo_path, isPresent := os.LookupEnv(helpers.INIT_DEV_REPO_PATH); isPresent {
-			repo_abs_path, err := filepath.Abs(repo_path)
+		if repoPath, isPresent := os.LookupEnv(helpers.InitDevRepoPath); isPresent {
+			repoAbsPath, err := filepath.Abs(repoPath)
 			if err != nil {
 				helpers.AppLogger.Error("Invalid Git Repository Path: %s set for %s",
-					repo_path, helpers.INIT_DEV_REPO_PATH)
+					repoPath, helpers.InitDevRepoPath)
 			} else {
-				helpers.AppLogger.Info("Using Local Git Repository: %s", repo_abs_path)
-				if strings.HasSuffix(repo_abs_path, ".git") {
-					repo = fmt.Sprintf("file://%s", repo_abs_path)
+				helpers.AppLogger.Info("Using Local Git Repository: %s", repoAbsPath)
+				if strings.HasSuffix(repoAbsPath, ".git") {
+					repo = fmt.Sprintf("file://%s", repoAbsPath)
 				} else {
-					repo = fmt.Sprintf("file://%s.git", repo_abs_path)
+					repo = fmt.Sprintf("file://%s.git", repoAbsPath)
 				}
 			}
 		}
-		if branch_name, isPresent := os.LookupEnv(helpers.INIT_DEV_BRANCH_NAME); isPresent {
-			helpers.AppLogger.Info("Using Git Branch: %s from %s Repository", branch_name, repo)
-			branch = branch_name
+		if branchName, isPresent := os.LookupEnv(helpers.InitDevBranchName); isPresent {
+			helpers.AppLogger.Info("Using Git Branch: %s from %s Repository", branchName, repo)
+			branch = branchName
 		}
 	}
 
@@ -135,16 +135,16 @@ func cloneTemplateRepoAndChangeCWD(options utils.Options) error {
 func cleanupProjectDir() error {
 	err := os.RemoveAll(".git")
 	if err != nil {
-		return errors.New("Error removing .git directory")
+		return errors.New("got an error while removing .git directory")
 	}
 	err = os.RemoveAll("templates")
 	if err != nil {
-		return errors.New("Error removing templates directory")
+		return errors.New("got an error while removing templates directory")
 	}
 
-	err = os.Remove(helpers.TEMPLATES_FILES_CONFIG)
+	err = os.Remove(helpers.TemplatesFilesConfig)
 	if err != nil {
-		return errors.New("Error removing " + helpers.TEMPLATES_FILES_CONFIG)
+		return errors.New("error removing " + helpers.TemplatesFilesConfig)
 	}
 	return nil
 }
@@ -154,10 +154,10 @@ func setupRepo(options utils.Options) (string, error) {
 	// 1. Create temp Directory and
 	tmpDir, err := createTempDirAndChangeCWD()
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("Error Creating a Temporary Directory, Err:%v", err.Error()))
+		return "", errors.New(fmt.Sprintf("error Creating a Temporary Directory, Err:%v", err.Error()))
 	}
 
-	// 2. Clone repo in it and change into that direcotry
+	// 2. Clone repo in it and change into that directory
 	err = cloneTemplateRepoAndChangeCWD(options)
 	if err != nil {
 		return "", errors.New(fmt.Sprintf("Error while Cloning a Template, Err:%v", err.Error()))
@@ -165,14 +165,14 @@ func setupRepo(options utils.Options) (string, error) {
 
 	// 3. Parse template-files.json
 	var templateFiles templates.TemplateFiles
-	contents, err := os.ReadFile(helpers.TEMPLATES_FILES_CONFIG)
+	contents, err := os.ReadFile(helpers.TemplatesFilesConfig)
 	if err != nil {
-		return "", fmt.Errorf("Unable to read config file '%v'", helpers.TEMPLATES_FILES_CONFIG)
+		return "", fmt.Errorf("unable to read config file '%v'", helpers.TemplatesFilesConfig)
 	}
 
 	err = json.Unmarshal(contents, &templateFiles)
 	if err != nil {
-		return "", fmt.Errorf("Unable to parse config '%v', due to error: '%w'", helpers.TEMPLATES_FILES_CONFIG, err)
+		return "", fmt.Errorf("unable to parse config '%v', due to error: '%w'", helpers.TemplatesFilesConfig, err)
 	}
 
 	options.Template.(*templates.Template).TemplateFiles = templateFiles

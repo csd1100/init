@@ -13,12 +13,12 @@ type mockCargo struct {
 	actualError error
 }
 
-func (mn *mockCargo) Exec(subcommand string, args []string) error {
-	mn.actualArgs = append([]string{subcommand}, args...)
+func (mc *mockCargo) Exec(subcommand string, args []string) error {
+	mc.actualArgs = append([]string{subcommand}, args...)
 	return nil
 }
 
-func (mg *mockCargo) GetCommand() string {
+func (mc *mockCargo) GetCommand() string {
 	return "mock"
 }
 
@@ -26,37 +26,37 @@ func TestCargo(t *testing.T) {
 	testcases := []struct {
 		name              string
 		expectedArgs      []string
-		exepectedError    error
+		expectedError     error
 		functionUnderTest func(cargoCLI) error
 	}{
 		{
-			name:           "CargoInit passes correct args",
-			expectedArgs:   []string{"init"},
-			exepectedError: nil,
+			name:          "CargoInit passes correct args",
+			expectedArgs:  []string{"init"},
+			expectedError: nil,
 			functionUnderTest: func(cargo cargoCLI) error {
 				return cargo.Init()
 			},
 		},
 		{
-			name:           "CargoCheck passes correct args",
-			expectedArgs:   []string{"check"},
-			exepectedError: nil,
+			name:          "CargoCheck passes correct args",
+			expectedArgs:  []string{"check"},
+			expectedError: nil,
 			functionUnderTest: func(cargo cargoCLI) error {
 				return cargo.Check()
 			},
 		},
 		{
-			name:           "CargoClean passes correct args",
-			expectedArgs:   []string{"clean"},
-			exepectedError: nil,
+			name:          "CargoClean passes correct args",
+			expectedArgs:  []string{"clean"},
+			expectedError: nil,
 			functionUnderTest: func(cargo cargoCLI) error {
 				return cargo.Clean()
 			},
 		},
 		{
-			name:           "CargoFetch passes correct args",
-			expectedArgs:   []string{"fetch"},
-			exepectedError: nil,
+			name:          "CargoFetch passes correct args",
+			expectedArgs:  []string{"fetch"},
+			expectedError: nil,
 			functionUnderTest: func(cargo cargoCLI) error {
 				return cargo.Fetch()
 			},
@@ -70,16 +70,16 @@ func TestCargo(t *testing.T) {
 			mCargo := cargoCLI{exe: &mockCargo{}}
 			err := tc.functionUnderTest(mCargo)
 			if err != nil {
-				if !errors.Is(err, tc.exepectedError) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
+				if !errors.Is(err, tc.expectedError) {
+					t.Errorf(helpers.FailureMessage,
 						tc.name,
 						helpers.ERROR,
-						tc.exepectedError,
+						tc.expectedError,
 						err)
 				}
 			} else {
 				if !reflect.DeepEqual(mCargo.exe.(*mockCargo).actualArgs, tc.expectedArgs) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
+					t.Errorf(helpers.FailureMessage,
 						tc.name,
 						helpers.VALUE,
 						tc.expectedArgs,
