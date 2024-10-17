@@ -51,6 +51,8 @@ func TestGoModInit(t *testing.T) {
 						tc.expectedError,
 						err)
 				}
+			} else if tc.expectedError != nil {
+				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
 			} else {
 				if !reflect.DeepEqual(mGo.exe.(*mockGo).actualArgs, tc.expectedArgs) {
 					t.Errorf(helpers.FailureMessage,
@@ -95,6 +97,8 @@ func TestGoModTidy(t *testing.T) {
 						tc.expectedError,
 						err)
 				}
+			} else if tc.expectedError != nil {
+				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
 			} else {
 				if !reflect.DeepEqual(mGo.exe.(*mockGo).actualArgs, tc.expectedArgs) {
 					t.Errorf(helpers.FailureMessage,

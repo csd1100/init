@@ -15,83 +15,29 @@ import (
 	"github.com/csd1100/init/internal/utils"
 )
 
-func Init(options utils.Options) error {
-	projectAbsPath, err := getProjectAbsolutePath(options)
-	if err != nil {
-		return errors.New(fmt.Sprintf("Error Generating Project Path, Err:%v", err.Error()))
-	}
+func shouldGitInit(options utils.Options, projectPath string) bool {
+	_, err := os.ReadDir(filepath.Join(projectPath, ".git"))
+	return !options.NoGit && err != nil
+}
 
-	if _, err := os.Stat(projectAbsPath); err == nil {
-		return errors.New(fmt.Sprintf("'%s' is already present.", projectAbsPath))
-	}
-
-	tmpDir, err := setupRepo(options)
-	if err != nil {
-		return err
-	}
-
-	// 2. Parse templates and cleanup directory
-	err = options.Template.ParseTemplates()
-	if err != nil {
-		return errors.New(fmt.Sprintf("Error while Parsing a Template, Err:%v", err.Error()))
-	}
-
-	err = cleanupProjectDir()
-	if err != nil {
-		return err
-	}
-
-	// 3. git init
-	if !options.NoGit {
-		err = cli.Git.Init()
+func cleanupProjectDir(current bool) error {
+	if !current {
+		err := os.RemoveAll(".git")
 		if err != nil {
-			return errors.New(fmt.Sprintf("Error while running git init, Err:%v", err.Error()))
+			return errors.New("got an error while removing .git directory")
 		}
 	}
 
-	// 4. run Init on template
-	if !options.NoSync {
-		err = options.Template.Sync(options.Template.(*templates.Template).TemplateData)
-		if err != nil {
-			return errors.New(fmt.Sprintf("Error while running sync, Err:%v", err.Error()))
-		}
-	}
-
-	err = helpers.MoveDir(path.Join(tmpDir, "templates"), projectAbsPath)
+	err := os.RemoveAll("templates")
 	if err != nil {
-		return errors.New(fmt.Sprintf("Error while moving the project, Err:%v", err.Error()))
+		return errors.New("got an error while removing templates directory")
 	}
 
-	return os.RemoveAll(tmpDir)
-}
-
-func getProjectAbsolutePath(options utils.Options) (string, error) {
-	projectPath, err := os.Getwd()
+	err = os.Remove(helpers.TemplatesFilesConfig)
 	if err != nil {
-		return "", errors.New(fmt.Sprintf("Error Getting Current Directory, Err:%v", err.Error()))
+		return errors.New("error removing " + helpers.TemplatesFilesConfig)
 	}
-	if options.Path != "" {
-		projectPath = options.Path
-	}
-	projectAbsPath, err := filepath.Abs(projectPath)
-	if err != nil {
-		return "", errors.New(fmt.Sprintf("Error Converting Path to Absolute Path, Err:%v", err.Error()))
-	}
-
-	return path.Join(projectAbsPath, options.Name), nil
-}
-
-func createTempDirAndChangeCWD() (*string, error) {
-	tmpDir, err := os.MkdirTemp(os.TempDir(), "init-*")
-	if err != nil {
-		return nil, err
-	}
-
-	err = os.Chdir(tmpDir)
-	if err != nil {
-		return nil, err
-	}
-	return &tmpDir, nil
+	return nil
 }
 
 func cloneTemplateRepoAndChangeCWD(options utils.Options) error {
@@ -132,21 +78,17 @@ func cloneTemplateRepoAndChangeCWD(options utils.Options) error {
 	return err
 }
 
-func cleanupProjectDir() error {
-	err := os.RemoveAll(".git")
+func createTempDirAndChangeCWD() (*string, error) {
+	tmpDir, err := os.MkdirTemp(os.TempDir(), "init-*")
 	if err != nil {
-		return errors.New("got an error while removing .git directory")
-	}
-	err = os.RemoveAll("templates")
-	if err != nil {
-		return errors.New("got an error while removing templates directory")
+		return nil, err
 	}
 
-	err = os.Remove(helpers.TemplatesFilesConfig)
+	err = os.Chdir(tmpDir)
 	if err != nil {
-		return errors.New("error removing " + helpers.TemplatesFilesConfig)
+		return nil, err
 	}
-	return nil
+	return &tmpDir, nil
 }
 
 func setupRepo(options utils.Options) (string, error) {
@@ -178,4 +120,76 @@ func setupRepo(options utils.Options) (string, error) {
 	options.Template.(*templates.Template).TemplateFiles = templateFiles
 
 	return *tmpDir, nil
+}
+
+func getProjectAbsolutePath(options utils.Options) (string, error) {
+	projectPath, err := os.Getwd()
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Error Getting Current Directory, Err:%v", err.Error()))
+	}
+
+	if options.Path != "" {
+		projectPath = options.Path
+	}
+
+	projectAbsPath, err := filepath.Abs(projectPath)
+	if err != nil {
+		return "", errors.New(fmt.Sprintf("Error Converting Path to Absolute Path, Err:%v", err.Error()))
+	}
+
+	if options.Current {
+		return projectAbsPath, nil
+	}
+
+	return path.Join(projectAbsPath, options.Name), nil
+}
+
+func Init(options utils.Options) error {
+	projectAbsPath, err := getProjectAbsolutePath(options)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Error Generating Project Path, Err:%v", err.Error()))
+	}
+
+	if _, err := os.Stat(projectAbsPath); err == nil {
+		return errors.New(fmt.Sprintf("'%s' is already present.", projectAbsPath))
+	}
+
+	tmpDir, err := setupRepo(options)
+	if err != nil {
+		return err
+	}
+
+	// 2. Parse templates and cleanup directory
+	err = options.Template.ParseTemplates()
+	if err != nil {
+		return errors.New(fmt.Sprintf("Error while Parsing a Template, Err:%v", err.Error()))
+	}
+
+	err = cleanupProjectDir(options.Current)
+	if err != nil {
+		return err
+	}
+
+	// 3. git init
+	if shouldGitInit(options, projectAbsPath) {
+		err = cli.Git.Init()
+		if err != nil {
+			return errors.New(fmt.Sprintf("Error while running git init, Err:%v", err.Error()))
+		}
+	}
+
+	// 4. run Init on template
+	if !options.NoSync {
+		err = options.Template.Sync(options.Template.(*templates.Template).TemplateData)
+		if err != nil {
+			return errors.New(fmt.Sprintf("Error while running sync, Err:%v", err.Error()))
+		}
+	}
+
+	err = helpers.MoveDir(path.Join(tmpDir, "templates"), projectAbsPath)
+	if err != nil {
+		return errors.New(fmt.Sprintf("Error while moving the project, Err:%v", err.Error()))
+	}
+
+	return os.RemoveAll(tmpDir)
 }

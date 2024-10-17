@@ -60,6 +60,8 @@ func TestGitClone(t *testing.T) {
 						tc.expectedError,
 						err)
 				}
+			} else if tc.expectedError != nil {
+				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
 			} else {
 				if !reflect.DeepEqual(mGit.exe.(*mockGit).actualArgs, tc.expectedArgs) {
 					t.Errorf(helpers.FailureMessage,
@@ -110,6 +112,8 @@ func TestGitCloneSingleBranch(t *testing.T) {
 						tc.expectedError,
 						err)
 				}
+			} else if tc.expectedError != nil {
+				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
 			} else {
 				if !reflect.DeepEqual(mGit.exe.(*mockGit).actualArgs, tc.expectedArgs) {
 					t.Errorf(helpers.FailureMessage,
@@ -152,6 +156,8 @@ func TestGitInit(t *testing.T) {
 						tc.expectedError,
 						err)
 				}
+			} else if tc.expectedError != nil {
+				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
 			} else {
 				if !reflect.DeepEqual(mGit.exe.(*mockGit).actualArgs, tc.expectedArgs) {
 					t.Errorf(helpers.FailureMessage,

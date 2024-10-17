@@ -73,6 +73,8 @@ func TestParseTemplate(t *testing.T) {
 				if !errors.Is(err, tc.expectedError) {
 					t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, err)
 				}
+			} else if tc.expectedError != nil {
+				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
 			} else {
 				actualFile, readErr := os.ReadFile(tc.tmpl.TemplateFiles.Files[0].Real)
 				if readErr != nil {

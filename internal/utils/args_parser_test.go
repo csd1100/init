@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -23,6 +24,16 @@ func TestParse(t *testing.T) {
 	testTemplateDataWithOptions[helpers.GoPackageName] = "project"
 	testTemplateDataWithOptions["key1"] = "val1"
 	testTemplateDataWithOptions["key2"] = "val2"
+
+	currentDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	currentName := filepath.Base(currentDir)
+	testTemplateDataForCurrent := make(map[string]string)
+	testTemplateDataForCurrent[helpers.ProjectName] = currentName
+	testTemplateDataForCurrent[helpers.GoPackageName] = "project"
 
 	cases := []struct {
 		name          string
@@ -108,7 +119,7 @@ func TestParse(t *testing.T) {
 			expectedError: nil,
 		},
 		{
-			name: "returns options if valid arguments",
+			name: "returns options if valid arguments with path",
 			init: func() {
 				_ = utils.FSet.Set("n", "test")
 				_ = utils.FSet.Set("t", "go")
@@ -131,7 +142,30 @@ func TestParse(t *testing.T) {
 			expectedError: nil,
 		},
 		{
-			name: "returns options if valid arguments with long version",
+			name: "returns options if valid arguments with current",
+			init: func() {
+				_ = utils.FSet.Set("n", "test")
+				_ = utils.FSet.Set("t", "go")
+				_ = utils.FSet.Set("G", "true")
+				_ = utils.FSet.Set("S", "true")
+				_ = utils.FSet.Set("c", "true")
+				_ = utils.FSet.Set("o", "key1=val1,key2=val2")
+			},
+			expectedValue: &utils.Options{
+				Name: "test",
+				Template: &templates.Template{
+					Name:         "go",
+					TemplateData: testTemplateDataWithOptions,
+					BuildTool:    cli.Go,
+				},
+				NoGit:   true,
+				NoSync:  true,
+				Current: true,
+			},
+			expectedError: nil,
+		},
+		{
+			name: "returns options if valid arguments with long version with path",
 			init: func() {
 				_ = utils.FSet.Set("name", "test")
 				_ = utils.FSet.Set("template", "go")
@@ -150,6 +184,69 @@ func TestParse(t *testing.T) {
 				NoGit:  true,
 				NoSync: true,
 				Path:   "/tmp/",
+			},
+			expectedError: nil,
+		},
+		{
+			name: "returns options if valid arguments with long version with current",
+			init: func() {
+				_ = utils.FSet.Set("name", "test")
+				_ = utils.FSet.Set("template", "go")
+				_ = utils.FSet.Set("no-git", "true")
+				_ = utils.FSet.Set("no-sync", "true")
+				_ = utils.FSet.Set("current", "true")
+				_ = utils.FSet.Set("options", "key1=val1,key2=val2")
+			},
+			expectedValue: &utils.Options{
+				Name: "test",
+				Template: &templates.Template{
+					Name:         "go",
+					TemplateData: testTemplateDataWithOptions,
+					BuildTool:    cli.Go,
+				},
+				NoGit:   true,
+				NoSync:  true,
+				Current: true,
+			},
+			expectedError: nil,
+		},
+		{
+			name: "returns error if current is used with path",
+			init: func() {
+				err := utils.FSet.Set("n", "test")
+				if err != nil {
+					panic("failed to set flag for test")
+				}
+				err = utils.FSet.Set("t", "js")
+				if err != nil {
+					panic("failed to set flag for test")
+				}
+				err = utils.FSet.Set("c", "true")
+				if err != nil {
+					panic("failed to set flag for test")
+				}
+				err = utils.FSet.Set("p", "/tmp")
+				if err != nil {
+					panic("failed to set flag for test")
+				}
+			},
+			expectedValue: nil,
+			expectedError: helpers.ErrArgCurrentNotWithPath,
+		},
+		{
+			name: "returns options if only current and template",
+			init: func() {
+				_ = utils.FSet.Set("c", "true")
+				_ = utils.FSet.Set("t", "go")
+			},
+			expectedValue: &utils.Options{
+				Name: currentName,
+				Template: &templates.Template{
+					Name:         "go",
+					TemplateData: testTemplateDataForCurrent,
+					BuildTool:    cli.Go,
+				},
+				Current: true,
 			},
 			expectedError: nil,
 		},
@@ -179,6 +276,8 @@ func TestParse(t *testing.T) {
 				if actual != nil {
 					t.Errorf(helpers.FailureMessage, tc.name, helpers.VALUE, tc.expectedValue, actual)
 				}
+			} else if tc.expectedError != nil {
+				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
 			} else {
 				if !reflect.DeepEqual(*actual, *tc.expectedValue) {
 					t.Errorf(helpers.FailureMessage, tc.name, helpers.VALUE, *tc.expectedValue, *actual)
