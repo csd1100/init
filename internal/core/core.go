@@ -20,15 +20,13 @@ func shouldGitInit(options utils.Options, projectPath string) bool {
 	return !options.NoGit && err != nil
 }
 
-func cleanupProjectDir(current bool) error {
-	if !current {
-		err := os.RemoveAll(".git")
-		if err != nil {
-			return errors.New("got an error while removing .git directory")
-		}
+func cleanupProjectDir() error {
+	err := os.RemoveAll(".git")
+	if err != nil {
+		return errors.New("got an error while removing .git directory")
 	}
 
-	err := os.RemoveAll("templates")
+	err = os.RemoveAll("templates")
 	if err != nil {
 		return errors.New("got an error while removing templates directory")
 	}
@@ -150,7 +148,7 @@ func Init(options utils.Options) error {
 		return errors.New(fmt.Sprintf("Error Generating Project Path, Err:%v", err.Error()))
 	}
 
-	if _, err := os.Stat(projectAbsPath); err == nil {
+	if _, err := os.Stat(projectAbsPath); !options.Current && err == nil {
 		return errors.New(fmt.Sprintf("'%s' is already present.", projectAbsPath))
 	}
 
@@ -165,7 +163,7 @@ func Init(options utils.Options) error {
 		return errors.New(fmt.Sprintf("Error while Parsing a Template, Err:%v", err.Error()))
 	}
 
-	err = cleanupProjectDir(options.Current)
+	err = cleanupProjectDir()
 	if err != nil {
 		return err
 	}
@@ -186,7 +184,7 @@ func Init(options utils.Options) error {
 		}
 	}
 
-	err = helpers.MoveDir(path.Join(tmpDir, "templates"), projectAbsPath)
+	err = helpers.MoveDir(path.Join(tmpDir, "templates"), projectAbsPath, options.Current)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Error while moving the project, Err:%v", err.Error()))
 	}
