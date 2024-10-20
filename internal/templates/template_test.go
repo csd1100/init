@@ -1,7 +1,6 @@
 package templates_test
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -68,27 +67,20 @@ func TestParseTemplate(t *testing.T) {
 			tc.tmpl.TemplateFiles.Files[0].Real = fmt.Sprintf("%v/test_data.json", dir)
 
 			err := tc.tmpl.ParseTemplates()
+			actualFile, readErr := os.ReadFile(tc.tmpl.TemplateFiles.Files[0].Real)
 
-			if err != nil {
-				if !errors.Is(err, tc.expectedError) {
-					t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, err)
-				}
-			} else if tc.expectedError != nil {
-				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
-			} else {
-				actualFile, readErr := os.ReadFile(tc.tmpl.TemplateFiles.Files[0].Real)
-				if readErr != nil {
-					t.Errorf("unable to read actual file")
-				}
+			helpers.ValidateExpectations(t, tc.name, string(actualFile), tc.expectedValue, err, tc.expectedError,
+				func(actual any, expected any) error {
+					if readErr != nil {
+						return fmt.Errorf("unable to read actual file")
+					}
 
-				if strings.Compare(string(actualFile), tc.expectedValue) != 0 {
-					t.Errorf(helpers.FailureMessage, tc.name, helpers.VALUE, tc.expectedValue, string(actualFile))
-				}
+					if strings.Compare(string(actualFile), tc.expectedValue) != 0 {
+						return fmt.Errorf("actual file does not match expected value")
+					}
 
-				if err != nil {
-					t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, err)
-				}
-			}
+					return nil
+				})
 		})
 	}
 }

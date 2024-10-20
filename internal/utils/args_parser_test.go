@@ -1,8 +1,8 @@
 package utils_test
 
 import (
-	"errors"
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -269,23 +269,13 @@ func TestParse(t *testing.T) {
 
 			actual, err := utils.ParseArgs()
 
-			if err != nil {
-				if !errors.Is(err, tc.expectedError) {
-					t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, err)
-				}
-				if actual != nil {
-					t.Errorf(helpers.FailureMessage, tc.name, helpers.VALUE, tc.expectedValue, actual)
-				}
-			} else if tc.expectedError != nil {
-				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
-			} else {
-				if !reflect.DeepEqual(*actual, *tc.expectedValue) {
-					t.Errorf(helpers.FailureMessage, tc.name, helpers.VALUE, *tc.expectedValue, *actual)
-				}
-				if err != nil {
-					t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, err)
-				}
-			}
+			helpers.ValidateExpectations(t, tc.name, actual, tc.expectedValue, err, tc.expectedError,
+				func(actual any, expected any) error {
+					if !reflect.DeepEqual(actual, expected) {
+						return fmt.Errorf("expected %v, got %v", expected, actual)
+					}
+					return nil
+				})
 
 			os.Args = oldArgs
 		})

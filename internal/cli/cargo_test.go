@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -68,24 +68,17 @@ func TestCargo(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 
 			mCargo := cargoCLI{exe: &mockCargo{}}
+
 			err := tc.functionUnderTest(mCargo)
-			if err != nil {
-				if !errors.Is(err, tc.expectedError) {
-					t.Errorf(helpers.FailureMessage,
-						tc.name,
-						helpers.ERROR,
-						tc.expectedError,
-						err)
-				}
-			} else {
-				if !reflect.DeepEqual(mCargo.exe.(*mockCargo).actualArgs, tc.expectedArgs) {
-					t.Errorf(helpers.FailureMessage,
-						tc.name,
-						helpers.VALUE,
-						tc.expectedArgs,
-						mCargo.exe.(*mockCargo).actualArgs)
-				}
-			}
+			actualArgs := mCargo.exe.(*mockCargo).actualArgs
+
+			helpers.ValidateExpectations(t, tc.name, actualArgs, tc.expectedArgs, err, tc.expectedError,
+				func(actual any, expected any) error {
+					if !reflect.DeepEqual(actual, expected) {
+						return fmt.Errorf("expected %v, got %v", expected, actual)
+					}
+					return nil
+				})
 
 		})
 

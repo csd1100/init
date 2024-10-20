@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -40,29 +40,18 @@ func TestGoModInit(t *testing.T) {
 	for _, tc := range testcases {
 
 		t.Run(tc.name, func(t *testing.T) {
-
 			mGo := goLang{exe: &mockGo{}}
-			err := mGo.ModInit(tc.projectName)
-			if err != nil {
-				if !errors.Is(err, tc.expectedError) {
-					t.Errorf(helpers.FailureMessage,
-						tc.name,
-						helpers.ERROR,
-						tc.expectedError,
-						err)
-				}
-			} else if tc.expectedError != nil {
-				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
-			} else {
-				if !reflect.DeepEqual(mGo.exe.(*mockGo).actualArgs, tc.expectedArgs) {
-					t.Errorf(helpers.FailureMessage,
-						tc.name,
-						helpers.VALUE,
-						tc.expectedArgs,
-						mGo.exe.(*mockGo).actualArgs)
-				}
-			}
 
+			err := mGo.ModInit(tc.projectName)
+			actualArgs := mGo.exe.(*mockGo).actualArgs
+
+			helpers.ValidateExpectations(t, tc.name, actualArgs, tc.expectedArgs, err, tc.expectedError,
+				func(actual any, expected any) error {
+					if !reflect.DeepEqual(actual, expected) {
+						return fmt.Errorf("expected %v, got %v", expected, actual)
+					}
+					return nil
+				})
 		})
 
 	}
@@ -86,29 +75,18 @@ func TestGoModTidy(t *testing.T) {
 	for _, tc := range testcases {
 
 		t.Run(tc.name, func(t *testing.T) {
-
 			mGo := goLang{exe: &mockGo{}}
-			err := mGo.ModTidy()
-			if err != nil {
-				if !errors.Is(err, tc.expectedError) {
-					t.Errorf(helpers.FailureMessage,
-						tc.name,
-						helpers.ERROR,
-						tc.expectedError,
-						err)
-				}
-			} else if tc.expectedError != nil {
-				t.Errorf(helpers.FailureMessage, tc.name, helpers.ERROR, tc.expectedError, nil)
-			} else {
-				if !reflect.DeepEqual(mGo.exe.(*mockGo).actualArgs, tc.expectedArgs) {
-					t.Errorf(helpers.FailureMessage,
-						tc.name,
-						helpers.VALUE,
-						tc.expectedArgs,
-						mGo.exe.(*mockGo).actualArgs)
-				}
-			}
 
+			err := mGo.ModTidy()
+			actualArgs := mGo.exe.(*mockGo).actualArgs
+
+			helpers.ValidateExpectations(t, tc.name, actualArgs, tc.expectedArgs, err, tc.expectedError,
+				func(actual any, expected any) error {
+					if !reflect.DeepEqual(actual, expected) {
+						return fmt.Errorf("expected %v, got %v", expected, actual)
+					}
+					return nil
+				})
 		})
 
 	}
