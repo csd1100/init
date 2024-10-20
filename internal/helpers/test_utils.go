@@ -23,7 +23,7 @@ func ValidateExpectations(t *testing.T, name string, actualValue, expectedValue 
 	} else if expectedError != nil {
 		t.Errorf(failureMessage, name, "error", expectedError, nil, errorAssertion)
 	} else {
-		valueErr := validationFn(expectedValue, actualValue)
+		valueErr := validationFn(actualValue, expectedValue)
 		if valueErr != nil {
 			t.Errorf(failureMessage, name, "value", expectedValue, actualValue, valueErr)
 		}
