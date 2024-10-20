@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -24,52 +24,42 @@ func (mg *mockGit) GetCommand() string {
 
 func TestGitClone(t *testing.T) {
 	testcases := []struct {
-		name           string
-		repo           string
-		args           []string
-		expectedArgs   []string
-		exepectedError error
+		name          string
+		repo          string
+		args          []string
+		expectedArgs  []string
+		expectedError error
 	}{
 		{
-			name:           "GitClone without args",
-			repo:           "test",
-			args:           []string{},
-			expectedArgs:   []string{"clone", "test"},
-			exepectedError: nil,
+			name:          "GitClone without args",
+			repo:          "test",
+			args:          []string{},
+			expectedArgs:  []string{"clone", "test"},
+			expectedError: nil,
 		},
 		{
-			name:           "GitClone with args",
-			repo:           "test",
-			args:           []string{"xxxx"},
-			expectedArgs:   []string{"clone", "xxxx", "test"},
-			exepectedError: nil,
+			name:          "GitClone with args",
+			repo:          "test",
+			args:          []string{"xxxx"},
+			expectedArgs:  []string{"clone", "xxxx", "test"},
+			expectedError: nil,
 		},
 	}
 
 	for _, tc := range testcases {
 
 		t.Run(tc.name, func(t *testing.T) {
-
 			mGit := gitCLI{exe: &mockGit{}}
 			err := mGit.Clone(tc.repo, tc.args)
-			if err != nil {
-				if !errors.Is(err, tc.exepectedError) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
-						tc.name,
-						helpers.ERROR,
-						tc.exepectedError,
-						err)
-				}
-			} else {
-				if !reflect.DeepEqual(mGit.exe.(*mockGit).actualArgs, tc.expectedArgs) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
-						tc.name,
-						helpers.VALUE,
-						tc.expectedArgs,
-						mGit.exe.(*mockGit).actualArgs)
-				}
-			}
+			actualArgs := mGit.exe.(*mockGit).actualArgs
 
+			helpers.ValidateExpectations(t, tc.name, actualArgs, tc.expectedArgs, err, tc.expectedError,
+				func(actual any, expected any) error {
+					if !reflect.DeepEqual(actual, expected) {
+						return fmt.Errorf("expected %v, got %v", expected, actual)
+					}
+					return nil
+				})
 		})
 
 	}
@@ -78,11 +68,11 @@ func TestGitClone(t *testing.T) {
 
 func TestGitCloneSingleBranch(t *testing.T) {
 	testcases := []struct {
-		name           string
-		repo           string
-		branch         string
-		expectedArgs   []string
-		exepectedError error
+		name          string
+		repo          string
+		branch        string
+		expectedArgs  []string
+		expectedError error
 	}{
 		{
 			name:   "GitCloneSingleBranch",
@@ -92,7 +82,7 @@ func TestGitCloneSingleBranch(t *testing.T) {
 				"clone", "--single-branch", "-b", "test-1",
 				"--depth", "1", "https://github.com/test/test",
 			},
-			exepectedError: nil,
+			expectedError: nil,
 		},
 	}
 
@@ -102,24 +92,15 @@ func TestGitCloneSingleBranch(t *testing.T) {
 
 			mGit := gitCLI{exe: &mockGit{}}
 			err := mGit.CloneSingleBranch(tc.repo, tc.branch)
-			if err != nil {
-				if !errors.Is(err, tc.exepectedError) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
-						tc.name,
-						helpers.ERROR,
-						tc.exepectedError,
-						err)
-				}
-			} else {
-				if !reflect.DeepEqual(mGit.exe.(*mockGit).actualArgs, tc.expectedArgs) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
-						tc.name,
-						helpers.VALUE,
-						tc.expectedArgs,
-						mGit.exe.(*mockGit).actualArgs)
-				}
-			}
+			actualArgs := mGit.exe.(*mockGit).actualArgs
 
+			helpers.ValidateExpectations(t, tc.name, actualArgs, tc.expectedArgs, err, tc.expectedError,
+				func(actual any, expected any) error {
+					if !reflect.DeepEqual(actual, expected) {
+						return fmt.Errorf("expected %v, got %v", expected, actual)
+					}
+					return nil
+				})
 		})
 
 	}
@@ -127,14 +108,14 @@ func TestGitCloneSingleBranch(t *testing.T) {
 }
 func TestGitInit(t *testing.T) {
 	testcases := []struct {
-		name           string
-		expectedArgs   []string
-		exepectedError error
+		name          string
+		expectedArgs  []string
+		expectedError error
 	}{
 		{
-			name:           "GitInit passes correct args",
-			expectedArgs:   []string{"init"},
-			exepectedError: nil,
+			name:          "GitInit passes correct args",
+			expectedArgs:  []string{"init"},
+			expectedError: nil,
 		},
 	}
 
@@ -144,24 +125,15 @@ func TestGitInit(t *testing.T) {
 
 			mGit := gitCLI{exe: &mockGit{}}
 			err := mGit.Init()
-			if err != nil {
-				if !errors.Is(err, tc.exepectedError) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
-						tc.name,
-						helpers.ERROR,
-						tc.exepectedError,
-						err)
-				}
-			} else {
-				if !reflect.DeepEqual(mGit.exe.(*mockGit).actualArgs, tc.expectedArgs) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
-						tc.name,
-						helpers.VALUE,
-						tc.expectedArgs,
-						mGit.exe.(*mockGit).actualArgs)
-				}
-			}
+			actualArgs := mGit.exe.(*mockGit).actualArgs
 
+			helpers.ValidateExpectations(t, tc.name, actualArgs, tc.expectedArgs, err, tc.expectedError,
+				func(actual any, expected any) error {
+					if !reflect.DeepEqual(actual, expected) {
+						return fmt.Errorf("expected %v, got %v", expected, actual)
+					}
+					return nil
+				})
 		})
 
 	}

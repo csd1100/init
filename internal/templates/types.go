@@ -30,8 +30,8 @@ type Template struct {
 	BuildTool     cli.BuildTool
 }
 
-func (template *Template) Sync(data map[string]string) error {
-	return template.BuildTool.Sync(data)
+func (tmpl *Template) Sync(data map[string]string) error {
+	return tmpl.BuildTool.Sync(data)
 }
 
 func (tmpl *Template) ParseTemplates() error {
@@ -46,7 +46,10 @@ func (tmpl *Template) ParseTemplates() error {
 			return err
 		}
 
-		parsedTemplate.Execute(file, tmpl.TemplateData)
+		err = parsedTemplate.Execute(file, tmpl.TemplateData)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -59,12 +62,12 @@ func GetTemplate(templateName string, projectName string, stringOptions string) 
 		templateOptions = getTemplateOptions(stringOptions)
 	}
 
-	templateOptions[helpers.PROJECT_NAME] = projectName
+	templateOptions[helpers.ProjectName] = projectName
 
 	switch templateName {
 	case "go":
-		if templateOptions[helpers.GO_PACKAGE_NAME] == "" {
-			templateOptions[helpers.GO_PACKAGE_NAME] = "project"
+		if templateOptions[helpers.GoPackageName] == "" {
+			templateOptions[helpers.GoPackageName] = "project"
 		}
 		return &Template{
 			Name:         "go",
@@ -78,7 +81,7 @@ func GetTemplate(templateName string, projectName string, stringOptions string) 
 			BuildTool:    cli.Npm,
 		}, nil
 	case "rust":
-		templateOptions[helpers.PROJECT_NAME_WITH_REPLACED_HYPHENS] = strings.ReplaceAll(projectName, "-", "_")
+		templateOptions[helpers.ProjectNameWithReplacedHyphens] = strings.ReplaceAll(projectName, "-", "_")
 		return &Template{
 			Name:         "rust",
 			TemplateData: templateOptions,
@@ -90,10 +93,10 @@ func GetTemplate(templateName string, projectName string, stringOptions string) 
 }
 
 func getTemplateOptions(templateOptions string) map[string]string {
-	templOptions := make(map[string]string)
+	tmplOptions := make(map[string]string)
 	for _, option := range strings.Split(templateOptions, ",") {
 		split := strings.Split(option, "=")
-		templOptions[split[0]] = split[1]
+		tmplOptions[split[0]] = split[1]
 	}
-	return templOptions
+	return tmplOptions
 }

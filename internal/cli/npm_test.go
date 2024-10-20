@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"errors"
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -18,47 +18,38 @@ func (mn *mockNpm) Exec(subcommand string, args []string) error {
 	return nil
 }
 
-func (mg *mockNpm) GetCommand() string {
+func (mn *mockNpm) GetCommand() string {
 	return "mock"
 }
 
 func TestNpmInstall(t *testing.T) {
 	testcases := []struct {
-		name           string
-		expectedArgs   []string
-		exepectedError error
+		name          string
+		expectedArgs  []string
+		expectedError error
 	}{
 		{
-			name:           "NpmInstall passes correct args",
-			expectedArgs:   []string{"install"},
-			exepectedError: nil,
+			name:          "NpmInstall passes correct args",
+			expectedArgs:  []string{"install"},
+			expectedError: nil,
 		},
 	}
 
 	for _, tc := range testcases {
 
 		t.Run(tc.name, func(t *testing.T) {
-
 			mNpm := npmCLI{exe: &mockNpm{}}
-			err := mNpm.Install()
-			if err != nil {
-				if !errors.Is(err, tc.exepectedError) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
-						tc.name,
-						helpers.ERROR,
-						tc.exepectedError,
-						err)
-				}
-			} else {
-				if !reflect.DeepEqual(mNpm.exe.(*mockNpm).actualArgs, tc.expectedArgs) {
-					t.Errorf(helpers.FAILURE_MESSAGE,
-						tc.name,
-						helpers.VALUE,
-						tc.expectedArgs,
-						mNpm.exe.(*mockNpm).actualArgs)
-				}
-			}
 
+			err := mNpm.Install()
+			actualArgs := mNpm.exe.(*mockNpm).actualArgs
+
+			helpers.ValidateExpectations(t, tc.name, actualArgs, tc.expectedArgs, err, tc.expectedError,
+				func(actual any, expected any) error {
+					if !reflect.DeepEqual(actual, expected) {
+						return fmt.Errorf("expected %v, got %v", expected, actual)
+					}
+					return nil
+				})
 		})
 
 	}

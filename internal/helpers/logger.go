@@ -5,43 +5,43 @@ import (
 	"os"
 )
 
-type level int8
+type Level int8
 
 const (
-	PANIC_LEVEL level = iota
-	ERROR_LEVEL
-	WARN_LEVEL
-	INFO_LEVEL
-	DEBUG_LEVEL
-	TRACE_LEVEL
+	PanicLevel Level = iota
+	ErrorLevel
+	WarnLevel
+	InfoLevel
+	DebugLevel
+	TraceLevel
 )
 
-func GetLevel(verbosity int) level {
+func GetLevel(verbosity int) Level {
 	switch verbosity {
 	case 0:
-		return PANIC_LEVEL
+		return PanicLevel
 	case 1:
-		return ERROR_LEVEL
+		return ErrorLevel
 	case 2:
-		return WARN_LEVEL
+		return WarnLevel
 	case 3:
-		return INFO_LEVEL
+		return InfoLevel
 	case 4:
-		return DEBUG_LEVEL
+		return DebugLevel
 	case 5:
-		return TRACE_LEVEL
+		return TraceLevel
 	default:
-		return WARN_LEVEL
+		return WarnLevel
 	}
 }
 
 type logger struct {
-	level  level
+	level  Level
 	logger *log.Logger
 }
 
 type appLogger struct {
-	CurrentLevel level
+	CurrentLevel Level
 	trace        logger
 	debug        logger
 	info         logger
@@ -51,46 +51,46 @@ type appLogger struct {
 }
 
 func (logging appLogger) Trace(format string, v ...any) {
-	if logging.CurrentLevel >= TRACE_LEVEL {
+	if logging.CurrentLevel >= TraceLevel {
 		logging.trace.logger.Printf(format, v...)
 	}
 }
 func (logging appLogger) Debug(format string, v ...any) {
-	if logging.CurrentLevel >= DEBUG_LEVEL {
+	if logging.CurrentLevel >= DebugLevel {
 		logging.debug.logger.Printf(format, v...)
 	}
 }
 
 func (logging appLogger) Info(format string, v ...any) {
-	if logging.CurrentLevel >= INFO_LEVEL {
+	if logging.CurrentLevel >= InfoLevel {
 		logging.info.logger.Printf(format, v...)
 	}
 }
 
 func (logging appLogger) Warn(format string, v ...any) {
-	if logging.CurrentLevel >= WARN_LEVEL {
+	if logging.CurrentLevel >= WarnLevel {
 		logging.warn.logger.Printf(format, v...)
 	}
 }
 
 func (logging appLogger) Error(format string, v ...any) {
-	if logging.CurrentLevel >= ERROR_LEVEL {
+	if logging.CurrentLevel >= ErrorLevel {
 		logging.error.logger.Printf(format, v...)
 	}
 }
 
 func (logging appLogger) Panic(format string, v ...any) {
-	if logging.CurrentLevel >= PANIC_LEVEL {
+	if logging.CurrentLevel >= PanicLevel {
 		logging.panic.logger.Panicf(format, v...)
 	}
 }
 
 var flags = log.Ldate | log.Ltime
 var AppLogger = appLogger{
-	trace: logger{level: TRACE_LEVEL, logger: log.New(os.Stdout, "TRACE: ", flags)},
-	debug: logger{level: DEBUG_LEVEL, logger: log.New(os.Stdout, "DEBUG: ", flags)},
-	info:  logger{level: INFO_LEVEL, logger: log.New(os.Stdout, "INFO: ", flags)},
-	warn:  logger{level: WARN_LEVEL, logger: log.New(os.Stdout, "WARN: ", flags)},
-	error: logger{level: ERROR_LEVEL, logger: log.New(os.Stdout, "ERROR: ", flags)},
-	panic: logger{level: PANIC_LEVEL, logger: log.New(os.Stdout, "PANIC: ", flags)},
+	trace: logger{level: TraceLevel, logger: log.New(os.Stdout, "TRACE: ", flags)},
+	debug: logger{level: DebugLevel, logger: log.New(os.Stdout, "DEBUG: ", flags)},
+	info:  logger{level: InfoLevel, logger: log.New(os.Stdout, "INFO: ", flags)},
+	warn:  logger{level: WarnLevel, logger: log.New(os.Stdout, "WARN: ", flags)},
+	error: logger{level: ErrorLevel, logger: log.New(os.Stdout, "ERROR: ", flags)},
+	panic: logger{level: PanicLevel, logger: log.New(os.Stdout, "PANIC: ", flags)},
 }
