@@ -8,7 +8,7 @@
 - Create a new project from available templates
 - Initialize git repository for project<sup>\*</sup>
 - Automatically install dependencies from templates using dependency manager
-  like npm / cargo<sup>\*</sup>
+  like pnpm / cargo<sup>\*</sup>
 
 \* - Can be disabled via flag.
 
@@ -16,7 +16,7 @@
 
 - `git` installed.
 - The programming language installed depending on project template used.
-- Package / Dependency managers like npm installed depending on project template
+- Package / Dependency managers like pnpm installed depending on project template
   used.
 
 ## Usage
@@ -35,7 +35,7 @@
       Values are comma-separated `key1=value1,key2=value2`
     - `-h|--help` - Display help.
     - `-G|--no-git` - Do not initialize git repository
-    - `-S|--no-sync` - Do not run commands like `npm install`.
+    - `-S|--no-sync` - Do not run commands like `pnpm install`.
     - `-v|--verbosity <0-5>` - Change the level of logging to STDOUT.  
       Where 0 is PANIC level and 5 is TRACE level.
 

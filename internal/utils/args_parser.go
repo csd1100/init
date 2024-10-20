@@ -43,8 +43,8 @@ func init() {
 	FSet.BoolVar(&current, "current", false, "do not create separate directory for project")
 	FSet.BoolVar(&noGit, "G", false, "do not initialize git repository")
 	FSet.BoolVar(&noGit, "no-git", false, "do not initialize git repository")
-	FSet.BoolVar(&noSync, "S", false, "do not sync project (e.g. npm install, go mod tidy)")
-	FSet.BoolVar(&noSync, "no-sync", false, "do not sync project (e.g. npm install, go mod tidy)")
+	FSet.BoolVar(&noSync, "S", false, "do not sync project (e.g. pnpm install, go mod tidy)")
+	FSet.BoolVar(&noSync, "no-sync", false, "do not sync project (e.g. pnpm install, go mod tidy)")
 	FSet.IntVar(&verbosity, "v", 2, "verbosity of output from 0 - 5 where 0 is less verbose")
 	FSet.IntVar(&verbosity, "verbose", 2, "verbosity of output from 0 - 5 where 0 is less verbose")
 }
